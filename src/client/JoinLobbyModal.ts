@@ -615,6 +615,20 @@ export class JoinLobbyModal extends BaseModal {
           .value=${`x${c.goldMultiplier}`}
         ></lobby-config-item>`,
       );
+    if (c.startingResearch)
+      cards.push(
+        html`<lobby-config-item
+          .label=${translateText("host_modal.starting_research")}
+          .value=${`${parseFloat((c.startingResearch / 1_000_000).toPrecision(12))}M`}
+        ></lobby-config-item>`,
+      );
+    if (c.researchMultiplier)
+      cards.push(
+        html`<lobby-config-item
+          .label=${translateText("host_modal.research_multiplier")}
+          .value=${`x${c.researchMultiplier}`}
+        ></lobby-config-item>`,
+      );
     if (c.disableAlliances)
       cards.push(
         html`<lobby-config-item
@@ -802,6 +816,23 @@ export class JoinLobbyModal extends BaseModal {
         >
           ${translateText("private_lobby.starting_gold")}:
           ${parseFloat((hc.startingGold / 1_000_000).toPrecision(12))}M
+        </span>`,
+      );
+    if (hc.researchMultiplier)
+      items.push(
+        html`<span
+          class="px-2 py-1 bg-cyan-500/20 text-cyan-200 text-xs rounded font-bold border border-cyan-500/30"
+        >
+          ${translateText("host_modal.research_multiplier")}: x${hc.researchMultiplier}
+        </span>`,
+      );
+    if (hc.startingResearch)
+      items.push(
+        html`<span
+          class="px-2 py-1 bg-cyan-500/20 text-cyan-200 text-xs rounded font-bold border border-cyan-500/30"
+        >
+          ${translateText("host_modal.starting_research")}:
+          ${parseFloat((hc.startingResearch / 1_000_000).toPrecision(12))}M
         </span>`,
       );
 

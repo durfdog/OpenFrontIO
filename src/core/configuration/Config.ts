@@ -249,6 +249,16 @@ export class Config {
     return this.startingGoldFor(playerInfo);
   }
 
+  researchMultiplier(): number {
+    return this._gameConfig.researchMultiplier ?? 1;
+  }
+  startingResearch(playerInfo: PlayerInfo): Gold {
+    if (playerInfo.playerType === PlayerType.Bot) {
+      return 0n;
+    }
+    return this.startingResearchFor(playerInfo);
+  }
+
   trainSpawnRate(numPlayerFactories: number): number {
     // hyperbolic decay, midpoint at 10 factories
     // expected number of trains = numPlayerFactories  / trainSpawnRate(numPlayerFactories)
@@ -277,6 +287,30 @@ export class Config {
     const distPenalty = citiesVisited * 5_000;
     const gold = Math.max(5000, baseGold - distPenalty);
     return toInt(gold * this.goldMultiplierFor(player));
+  }
+
+  trainResearch(
+    rel: "self" | "team" | "ally" | "other",
+    citiesVisited: number,
+    player: Player | PlayerView,
+  ): Gold {
+    citiesVisited = Math.max(0, citiesVisited - 9);
+    let base: number;
+    switch (rel) {
+      case "ally":
+        base = 35_000;
+        break;
+      case "team":
+      case "other":
+        base = 25_000;
+        break;
+      case "self":
+        base = 10_000;
+        break;
+    }
+    const distPenalty = citiesVisited * 5_000;
+    const research = Math.max(5000, base - distPenalty);
+    return toInt(research * this.researchMultiplierFor(player));
   }
 
   trainStationMinRange(): number {
@@ -498,6 +532,15 @@ export class Config {
     return base;
   }
 
+  private researchMultiplierFor(player: Player | PlayerView): number {
+    const base = this.researchMultiplier();
+    const hc = this._gameConfig.hostCheats;
+    if (hc?.researchMultiplier && player.isLobbyCreator()) {
+      return hc.researchMultiplier;
+    }
+    return base;
+  }
+
   public conquerGoldAmount(captured: Player): Gold {
     if (
       captured.type() === PlayerType.Bot ||
@@ -514,6 +557,15 @@ export class Config {
     const hc = this._gameConfig.hostCheats;
     if (hc?.startingGold && playerInfo.isLobbyCreator) {
       return base + BigInt(hc.startingGold);
+    }
+    return base;
+  }
+
+  private startingResearchFor(playerInfo: PlayerInfo): Gold {
+    const base = BigInt(this._gameConfig.startingResearch ?? 0);
+    const hc = this._gameConfig.hostCheats;
+    if (hc?.startingResearch && playerInfo.isLobbyCreator) {
+      return base + BigInt(hc.startingResearch);
     }
     return base;
   }

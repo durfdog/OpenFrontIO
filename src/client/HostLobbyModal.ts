@@ -84,6 +84,10 @@ export class HostLobbyModal extends BaseModal {
   @state() private goldMultiplierValue: number | undefined = undefined;
   @state() private startingGold: boolean = false;
   @state() private startingGoldValue: number | undefined = undefined;
+  @state() private researchMultiplier: boolean = false;
+  @state() private researchMultiplierValue: number | undefined = undefined;
+  @state() private startingResearch: boolean = false;
+  @state() private startingResearchValue: number | undefined = undefined;
   @state() private disableAlliances: boolean = false;
   @state() private doomsdayClock: boolean = false;
   @state() private doomsdayClockSpeed: DoomsdayClockSpeed = "normal";
@@ -104,6 +108,10 @@ export class HostLobbyModal extends BaseModal {
   @state() private hostCheatGoldMultiplierValue: number | undefined = undefined;
   @state() private hostCheatStartingGold: boolean = false;
   @state() private hostCheatStartingGoldValue: number | undefined = undefined;
+  @state() private hostCheatResearchMultiplier: boolean = false;
+  @state() private hostCheatResearchMultiplierValue: number | undefined = undefined;
+  @state() private hostCheatStartingResearch: boolean = false;
+  @state() private hostCheatStartingResearchValue: number | undefined = undefined;
   @state() private lobbyCreatorClientID: string = "";
   @state() private lobbyStartAt: number | null = null;
   @state() private serverTimeOffset: number = 0;
@@ -388,6 +396,42 @@ export class HostLobbyModal extends BaseModal {
         .onChange=${this.handleStartingGoldValueChanges}
         .onKeyDown=${this.handleStartingGoldValueKeyDown}
       ></toggle-input-card>`,
+      html`<toggle-input-card
+        .labelKey=${"host_modal.research_multiplier"}
+        .checked=${this.researchMultiplier}
+        .inputId=${"research-multiplier-value"}
+        .inputMin=${0.1}
+        .inputMax=${1000}
+        .inputStep=${"any"}
+        .inputValue=${this.researchMultiplierValue}
+        .inputAriaLabel=${translateText("host_modal.research_multiplier")}
+        .inputPlaceholder=${translateText(
+          "host_modal.research_multiplier_placeholder",
+        )}
+        .defaultInputValue=${2}
+        .minValidOnEnable=${0.1}
+        .onToggle=${this.handleResearchMultiplierToggle}
+        .onChange=${this.handleResearchMultiplierValueChanges}
+        .onKeyDown=${this.handleResearchMultiplierValueKeyDown}
+      ></toggle-input-card>`,
+      html`<toggle-input-card
+        .labelKey=${"host_modal.starting_research"}
+        .checked=${this.startingResearch}
+        .inputId=${"starting-research-value"}
+        .inputMin=${0.1}
+        .inputMax=${1000}
+        .inputStep=${"any"}
+        .inputValue=${this.startingResearchValue}
+        .inputAriaLabel=${translateText("host_modal.starting_research")}
+        .inputPlaceholder=${translateText(
+          "host_modal.starting_research_placeholder",
+        )}
+        .defaultInputValue=${5}
+        .minValidOnEnable=${0.1}
+        .onToggle=${this.handleStartingResearchToggle}
+        .onChange=${this.handleStartingResearchValueChanges}
+        .onKeyDown=${this.handleStartingResearchValueKeyDown}
+      ></toggle-input-card>`,
       // A join whitelist and public listing are mutually exclusive (the
       // server rejects both combinations), so the control disappears while
       // the lobby is listed.
@@ -446,6 +490,42 @@ export class HostLobbyModal extends BaseModal {
         .onToggle=${this.handleHostCheatStartingGoldToggle}
         .onChange=${this.handleHostCheatStartingGoldValueChanges}
         .onKeyDown=${this.handleHostCheatStartingGoldValueKeyDown}
+      ></toggle-input-card>`,
+      html`<toggle-input-card
+        .labelKey=${"host_modal.research_multiplier"}
+        .checked=${this.hostCheatResearchMultiplier}
+        .inputId=${"host-cheat-research-multiplier-value"}
+        .inputMin=${0.1}
+        .inputMax=${1000}
+        .inputStep=${"any"}
+        .inputValue=${this.hostCheatResearchMultiplierValue}
+        .inputAriaLabel=${translateText("host_modal.research_multiplier")}
+        .inputPlaceholder=${translateText(
+          "host_modal.research_multiplier_placeholder",
+        )}
+        .defaultInputValue=${2}
+        .minValidOnEnable=${0.1}
+        .onToggle=${this.handleHostCheatResearchMultiplierToggle}
+        .onChange=${this.handleHostCheatResearchMultiplierValueChanges}
+        .onKeyDown=${this.handleHostCheatResearchMultiplierValueKeyDown}
+      ></toggle-input-card>`,
+      html`<toggle-input-card
+        .labelKey=${"host_modal.starting_research"}
+        .checked=${this.hostCheatStartingResearch}
+        .inputId=${"host-cheat-starting-research-value"}
+        .inputMin=${0.1}
+        .inputMax=${1000}
+        .inputStep=${"any"}
+        .inputValue=${this.hostCheatStartingResearchValue}
+        .inputAriaLabel=${translateText("host_modal.starting_research")}
+        .inputPlaceholder=${translateText(
+          "host_modal.starting_research_placeholder",
+        )}
+        .defaultInputValue=${5}
+        .minValidOnEnable=${0.1}
+        .onToggle=${this.handleHostCheatStartingResearchToggle}
+        .onChange=${this.handleHostCheatStartingResearchValueChanges}
+        .onKeyDown=${this.handleHostCheatStartingResearchValueKeyDown}
       ></toggle-input-card>`,
     ];
 
@@ -767,6 +847,10 @@ export class HostLobbyModal extends BaseModal {
     this.goldMultiplierValue = undefined;
     this.startingGold = false;
     this.startingGoldValue = undefined;
+    this.researchMultiplier = false;
+    this.researchMultiplierValue = undefined;
+    this.startingResearch = false;
+    this.startingResearchValue = undefined;
     this.disableAlliances = false;
     this.doomsdayClock = false;
     this.doomsdayClockSpeed = "normal";
@@ -782,6 +866,10 @@ export class HostLobbyModal extends BaseModal {
     this.hostCheatGoldMultiplierValue = undefined;
     this.hostCheatStartingGold = false;
     this.hostCheatStartingGoldValue = undefined;
+    this.hostCheatResearchMultiplier = false;
+    this.hostCheatResearchMultiplierValue = undefined;
+    this.hostCheatStartingResearch = false;
+    this.hostCheatStartingResearchValue = undefined;
     this.publiclyListed = false;
     this.showSubscriptionRequired = false;
     this.autoStartAt = null;
@@ -1092,6 +1180,116 @@ export class HostLobbyModal extends BaseModal {
     this.putGameConfig();
   };
 
+  private handleResearchMultiplierToggle = (
+    checked: boolean,
+    value: number | string | undefined,
+  ) => {
+    this.researchMultiplier = checked;
+    this.researchMultiplierValue = toOptionalNumber(value);
+    this.putGameConfig();
+  };
+
+  private handleResearchMultiplierValueKeyDown = (e: KeyboardEvent) => {
+    preventDisallowedKeys(e, ["+", "-", "e", "E"]);
+  };
+
+  private handleResearchMultiplierValueChanges = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const value = parseBoundedFloatFromInput(input, { min: 0.1, max: 1000 });
+
+    if (value === undefined) {
+      this.researchMultiplierValue = undefined;
+      input.value = "";
+    } else {
+      this.researchMultiplierValue = value;
+    }
+    this.putGameConfig();
+  };
+
+  private handleStartingResearchToggle = (
+    checked: boolean,
+    value: number | string | undefined,
+  ) => {
+    this.startingResearch = checked;
+    this.startingResearchValue = toOptionalNumber(value);
+    this.putGameConfig();
+  };
+
+  private handleStartingResearchValueKeyDown = (e: KeyboardEvent) => {
+    preventDisallowedKeys(e, ["-", "+", "e", "E"]);
+  };
+
+  private handleStartingResearchValueChanges = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const value = parseBoundedFloatFromInput(input, {
+      min: 0.1,
+      max: 1000,
+    });
+
+    if (value === undefined) {
+      this.startingResearchValue = undefined;
+      input.value = "";
+    } else {
+      this.startingResearchValue = value;
+    }
+    this.putGameConfig();
+  };
+
+  private handleHostCheatResearchMultiplierToggle = (
+    checked: boolean,
+    value: number | string | undefined,
+  ) => {
+    this.hostCheatResearchMultiplier = checked;
+    this.hostCheatResearchMultiplierValue = toOptionalNumber(value);
+    this.putGameConfig();
+  };
+
+  private handleHostCheatResearchMultiplierValueKeyDown = (e: KeyboardEvent) => {
+    preventDisallowedKeys(e, ["+", "-", "e", "E"]);
+  };
+
+  private handleHostCheatResearchMultiplierValueChanges = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const value = parseBoundedFloatFromInput(input, { min: 0.1, max: 1000 });
+
+    if (value === undefined) {
+      this.hostCheatResearchMultiplierValue = undefined;
+      input.value = "";
+    } else {
+      this.hostCheatResearchMultiplierValue = value;
+    }
+    this.putGameConfig();
+  };
+
+  private handleHostCheatStartingResearchToggle = (
+    checked: boolean,
+    value: number | string | undefined,
+  ) => {
+    this.hostCheatStartingResearch = checked;
+    this.hostCheatStartingResearchValue = toOptionalNumber(value);
+    this.putGameConfig();
+  };
+
+  private handleHostCheatStartingResearchValueKeyDown = (e: KeyboardEvent) => {
+    preventDisallowedKeys(e, ["-", "+", "e", "E"]);
+  };
+
+  private handleHostCheatStartingResearchValueChanges = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const value = parseBoundedFloatFromInput(input, {
+      min: 0.1,
+      max: 1000,
+    });
+
+    if (value === undefined) {
+      this.hostCheatStartingResearchValue = undefined;
+      input.value = "";
+    } else {
+      this.hostCheatStartingResearchValue = value;
+    }
+    this.putGameConfig();
+  };
+
   private handleRandomSpawnChange = (val: boolean) => {
     this.randomSpawn = val;
     this.putGameConfig();
@@ -1294,6 +1492,15 @@ export class HostLobbyModal extends BaseModal {
               this.startingGold === true && this.startingGoldValue !== undefined
                 ? Math.round(this.startingGoldValue * 1_000_000)
                 : null,
+            researchMultiplier:
+              this.researchMultiplier === true
+                ? this.researchMultiplierValue
+                : null,
+            startingResearch:
+              this.startingResearch === true &&
+              this.startingResearchValue !== undefined
+                ? Math.round(this.startingResearchValue * 1_000_000)
+                : null,
             disableAlliances: this.disableAlliances || null,
             // Send {enabled:false} (not undefined) when off: undefined is dropped
             // by JSON.stringify, so the server's "!== undefined" merge would keep a
@@ -1319,6 +1526,17 @@ export class HostLobbyModal extends BaseModal {
                     this.hostCheatStartingGold === true &&
                     this.hostCheatStartingGoldValue !== undefined
                       ? Math.round(this.hostCheatStartingGoldValue * 1_000_000)
+                      : null,
+                  researchMultiplier:
+                    this.hostCheatResearchMultiplier === true
+                      ? this.hostCheatResearchMultiplierValue
+                      : null,
+                  startingResearch:
+                    this.hostCheatStartingResearch === true &&
+                    this.hostCheatStartingResearchValue !== undefined
+                      ? Math.round(
+                          this.hostCheatStartingResearchValue * 1_000_000,
+                        )
                       : null,
                 }
               : undefined,

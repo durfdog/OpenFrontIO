@@ -269,6 +269,14 @@ export class GameServer {
     if (gameConfig.startingGold !== undefined) {
       this.gameConfig.startingGold = gameConfig.startingGold ?? undefined;
     }
+    if (gameConfig.researchMultiplier !== undefined) {
+      this.gameConfig.researchMultiplier =
+        gameConfig.researchMultiplier ?? undefined;
+    }
+    if (gameConfig.startingResearch !== undefined) {
+      this.gameConfig.startingResearch =
+        gameConfig.startingResearch ?? undefined;
+    }
     if (gameConfig.disableAlliances !== undefined) {
       this.gameConfig.disableAlliances =
         gameConfig.disableAlliances ?? undefined;

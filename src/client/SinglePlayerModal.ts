@@ -59,6 +59,10 @@ const DEFAULT_OPTIONS = {
   goldMultiplierValue: undefined as number | undefined,
   startingGold: false,
   startingGoldValue: undefined as number | undefined,
+  researchMultiplier: false,
+  researchMultiplierValue: undefined as number | undefined,
+  startingResearch: false,
+  startingResearchValue: undefined as number | undefined,
   disabledUnits: [] as UnitType[],
   disableAlliances: false,
   waterNukes: false,
@@ -141,6 +145,14 @@ export class SinglePlayerModal extends BaseModal {
   @state() private startingGold: boolean = DEFAULT_OPTIONS.startingGold;
   @state() private startingGoldValue: number | undefined =
     DEFAULT_OPTIONS.startingGoldValue;
+  @state() private researchMultiplier: boolean =
+    DEFAULT_OPTIONS.researchMultiplier;
+  @state() private researchMultiplierValue: number | undefined =
+    DEFAULT_OPTIONS.researchMultiplierValue;
+  @state() private startingResearch: boolean =
+    DEFAULT_OPTIONS.startingResearch;
+  @state() private startingResearchValue: number | undefined =
+    DEFAULT_OPTIONS.startingResearchValue;
 
   @state() private disabledUnits: UnitType[] = [
     ...DEFAULT_OPTIONS.disabledUnits,
@@ -379,6 +391,42 @@ export class SinglePlayerModal extends BaseModal {
         .onChange=${this.handleStartingGoldValueChanges}
         .onKeyDown=${this.handleStartingGoldValueKeyDown}
       ></toggle-input-card>`,
+      html`<toggle-input-card
+        .labelKey=${"single_modal.research_multiplier"}
+        .checked=${this.researchMultiplier}
+        .inputId=${"research-multiplier-value"}
+        .inputMin=${0.1}
+        .inputMax=${1000}
+        .inputStep=${"any"}
+        .inputValue=${this.researchMultiplierValue}
+        .inputAriaLabel=${translateText("single_modal.research_multiplier")}
+        .inputPlaceholder=${translateText(
+          "single_modal.research_multiplier_placeholder",
+        )}
+        .defaultInputValue=${2}
+        .minValidOnEnable=${0.1}
+        .onToggle=${this.handleResearchMultiplierToggle}
+        .onChange=${this.handleResearchMultiplierValueChanges}
+        .onKeyDown=${this.handleResearchMultiplierValueKeyDown}
+      ></toggle-input-card>`,
+      html`<toggle-input-card
+        .labelKey=${"single_modal.starting_research"}
+        .checked=${this.startingResearch}
+        .inputId=${"starting-research-value"}
+        .inputMin=${0.1}
+        .inputMax=${1000}
+        .inputStep=${"any"}
+        .inputValue=${this.startingResearchValue}
+        .inputAriaLabel=${translateText("single_modal.starting_research")}
+        .inputPlaceholder=${translateText(
+          "single_modal.starting_research_placeholder",
+        )}
+        .defaultInputValue=${5}
+        .minValidOnEnable=${0.1}
+        .onToggle=${this.handleStartingResearchToggle}
+        .onChange=${this.handleStartingResearchValueChanges}
+        .onKeyDown=${this.handleStartingResearchValueKeyDown}
+      ></toggle-input-card>`,
     ];
 
     return html`
@@ -510,6 +558,8 @@ export class SinglePlayerModal extends BaseModal {
       this.gameMode !== DEFAULT_OPTIONS.gameMode ||
       this.goldMultiplier !== DEFAULT_OPTIONS.goldMultiplier ||
       this.startingGold !== DEFAULT_OPTIONS.startingGold ||
+      this.researchMultiplier !== DEFAULT_OPTIONS.researchMultiplier ||
+      this.startingResearch !== DEFAULT_OPTIONS.startingResearch ||
       this.disableAlliances !== DEFAULT_OPTIONS.disableAlliances ||
       this.waterNukes !== DEFAULT_OPTIONS.waterNukes ||
       this.doomsdayClock !== DEFAULT_OPTIONS.doomsdayClock ||
@@ -542,6 +592,10 @@ export class SinglePlayerModal extends BaseModal {
     this.goldMultiplierValue = DEFAULT_OPTIONS.goldMultiplierValue;
     this.startingGold = DEFAULT_OPTIONS.startingGold;
     this.startingGoldValue = DEFAULT_OPTIONS.startingGoldValue;
+    this.researchMultiplier = DEFAULT_OPTIONS.researchMultiplier;
+    this.researchMultiplierValue = DEFAULT_OPTIONS.researchMultiplierValue;
+    this.startingResearch = DEFAULT_OPTIONS.startingResearch;
+    this.startingResearchValue = DEFAULT_OPTIONS.startingResearchValue;
     this.disableAlliances = DEFAULT_OPTIONS.disableAlliances;
     this.waterNukes = DEFAULT_OPTIONS.waterNukes;
     this.doomsdayClock = DEFAULT_OPTIONS.doomsdayClock;
@@ -696,6 +750,22 @@ export class SinglePlayerModal extends BaseModal {
     this.startingGoldValue = toOptionalNumber(value);
   };
 
+  private handleResearchMultiplierToggle = (
+    checked: boolean,
+    value: number | string | undefined,
+  ) => {
+    this.researchMultiplier = checked;
+    this.researchMultiplierValue = toOptionalNumber(value);
+  };
+
+  private handleStartingResearchToggle = (
+    checked: boolean,
+    value: number | string | undefined,
+  ) => {
+    this.startingResearch = checked;
+    this.startingResearchValue = toOptionalNumber(value);
+  };
+
   private handleMaxTimerValueKeyDown = (e: KeyboardEvent) => {
     preventDisallowedKeys(e, ["-", "+", "e"]);
   };
@@ -752,6 +822,41 @@ export class SinglePlayerModal extends BaseModal {
       input.value = "";
     } else {
       this.startingGoldValue = value;
+    }
+  };
+
+  private handleResearchMultiplierValueKeyDown = (e: KeyboardEvent) => {
+    preventDisallowedKeys(e, ["+", "-", "e", "E"]);
+  };
+
+  private handleResearchMultiplierValueChanges = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const value = parseBoundedFloatFromInput(input, { min: 0.1, max: 1000 });
+
+    if (value === undefined) {
+      this.researchMultiplierValue = undefined;
+      input.value = "";
+    } else {
+      this.researchMultiplierValue = value;
+    }
+  };
+
+  private handleStartingResearchValueKeyDown = (e: KeyboardEvent) => {
+    preventDisallowedKeys(e, ["-", "+", "e", "E"]);
+  };
+
+  private handleStartingResearchValueChanges = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const value = parseBoundedFloatFromInput(input, {
+      min: 0.1,
+      max: 1000,
+    });
+
+    if (value === undefined) {
+      this.startingResearchValue = undefined;
+      input.value = "";
+    } else {
+      this.startingResearchValue = value;
     }
   };
 
@@ -842,6 +947,17 @@ export class SinglePlayerModal extends BaseModal {
                 ? {
                     startingGold: Math.round(
                       this.startingGoldValue * 1_000_000,
+                    ),
+                  }
+                : {}),
+              ...(this.researchMultiplier && this.researchMultiplierValue
+                ? { researchMultiplier: this.researchMultiplierValue }
+                : {}),
+              ...(this.startingResearch &&
+              this.startingResearchValue !== undefined
+                ? {
+                    startingResearch: Math.round(
+                      this.startingResearchValue * 1_000_000,
                     ),
                   }
                 : {}),

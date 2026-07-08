@@ -158,7 +158,7 @@ export class PlayerImpl implements Player {
   ) {
     this._troops = toInt(startTroops);
     this._gold = mg.config().startingGold(playerInfo);
-    this._research = 0n;
+    this._research = mg.config().startingResearch(playerInfo);
     this._pseudo_random = new PseudoRandom(simpleHash(this.playerInfo.id));
   }
 

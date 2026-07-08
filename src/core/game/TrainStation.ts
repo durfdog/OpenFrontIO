@@ -47,7 +47,7 @@ class LabTradeStationStopHandler implements TrainStopHandler {
     const trainOwner = trainExecution.owner();
     const research = mg
       .config()
-      .trainGold(
+      .trainResearch(
         rel(trainOwner, stationOwner),
         trainExecution.tradeStopsVisited(),
         trainOwner,
