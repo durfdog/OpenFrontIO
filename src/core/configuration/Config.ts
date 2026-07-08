@@ -874,7 +874,7 @@ export class Config {
                 .units(UnitType.Lab)
                 .filter((u) => !u.isUnderConstruction())
                 .length *
-                10000,
+                100000,
           );
 
     if (player.type() === PlayerType.Bot) {

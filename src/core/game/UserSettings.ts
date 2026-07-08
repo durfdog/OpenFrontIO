@@ -44,6 +44,7 @@ export function getDefaultKeybinds(isMac: boolean): Record<string, string> {
     gameSpeedUp: "Period",
     gameSpeedDown: "Comma",
     altKey: "AltLeft",
+    toggleTechTree: "AltRight",
   };
 }
 

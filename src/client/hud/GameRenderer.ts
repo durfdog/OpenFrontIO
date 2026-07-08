@@ -40,6 +40,7 @@ import { ReplayPanel } from "./layers/ReplayPanel";
 import { SettingsModal } from "./layers/SettingsModal";
 import { SpawnTimer } from "./layers/SpawnTimer";
 import { TeamStats } from "./layers/TeamStats";
+import { TechTreeOverlay } from "./layers/TechTreeOverlay";
 import { UnitDisplay } from "./layers/UnitDisplay";
 import { WinModal } from "./layers/WinModal";
 import { loadAllSprites } from "./SpriteLoader";
@@ -90,6 +91,13 @@ export function createRenderer(
   }
   leaderboard.eventBus = eventBus;
   leaderboard.game = game;
+
+  const techTreeOverlay = document.querySelector(
+    "tech-tree-overlay",
+  ) as TechTreeOverlay;
+  if (!techTreeOverlay || !(techTreeOverlay instanceof TechTreeOverlay)) {
+    console.error("TechTreeOverlay element not found in the DOM");
+  }
 
   const gameLeftSidebar = document.querySelector(
     "game-left-sidebar",

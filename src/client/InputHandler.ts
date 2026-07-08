@@ -186,6 +186,8 @@ export class ToggleCoordinateGridEvent implements GameEvent {
   constructor(public readonly enabled: boolean) {}
 }
 
+export class ToggleTechTreeEvent implements GameEvent {}
+
 export class TickMetricsEvent implements GameEvent {
   constructor(
     public readonly tickExecutionDuration?: number,
@@ -306,6 +308,10 @@ export class InputHandler {
     this.addKeybindAndEvent(this.keybinds.toggleView, () => {
       this.alternateView = false;
       this.eventBus.emit(new AlternateViewEvent(false));
+    });
+    this.addKeybindAndEvent(this.keybinds.toggleTechTree, () => {
+      this.eventBus.emit(new ToggleTechTreeEvent());
+      (document.querySelector("tech-tree-overlay") as any)?.toggle();
     });
     const resetKey = this.keybinds.resetGfx ?? "KeyR";
     this.addKeybindAndEvent(

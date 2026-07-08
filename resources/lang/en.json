@@ -1363,6 +1363,17 @@
     "teal": "Teal",
     "yellow": "Yellow"
   },
+  "tech_tree": {
+    "cost": "Cost",
+    "efficiency": "Efficiency",
+    "efficiency_desc": "Improve resource gathering rates across all structures.",
+    "logistics": "Logistics",
+    "logistics_desc": "Increase train and trade ship range and capacity.",
+    "no_prereq": "No prerequisites",
+    "title": "Tech Tree",
+    "warfare": "Warfare",
+    "warfare_desc": "Unlock advanced combat abilities and troop bonuses."
+  },
   "territory_patterns": {
     "pattern": {
       "default": "Default"
@@ -1519,6 +1530,7 @@
     "move_up_desc": "Move the camera upward",
     "off": "Off",
     "on": "On",
+    "overlay_keybinds": "Overlay Keybinds",
     "pause_game": "Pause",
     "pause_game_desc": "Pause or resume the game (single player and custom games for host).",
     "performance_overlay_desc": "Toggle the performance overlay. When enabled, the performance overlay will be displayed. Press shift-D during game to toggle.",
@@ -1541,6 +1553,8 @@
     "territory_patterns_desc": "Choose whether to display territory skin designs in game",
     "territory_patterns_label": "Territory Skins",
     "title": "Settings",
+    "toggle_tech_tree": "Toggle Tech Tree",
+    "toggle_tech_tree_desc": "Open or close the tech tree overlay.",
     "toggle_terrain": "Toggle Terrain",
     "toggle_view": "Toggle View",
     "toggle_view_desc": "Alternate view (terrain/countries)",
