@@ -58,6 +58,10 @@ export class SendUpgradeStructureIntentEvent implements GameEvent {
   ) {}
 }
 
+export class SendPurchaseTechIntentEvent implements GameEvent {
+  constructor(public readonly techId: string) {}
+}
+
 export class SendAllianceRejectIntentEvent implements GameEvent {
   constructor(public readonly requestor: PlayerView) {}
 }
@@ -276,6 +280,9 @@ export class Transport {
 
     this.eventBus.on(SendToggleGameStartTimer, (e) =>
       this.onSendToggleGameStartTimer(e),
+    );
+    this.eventBus.on(SendPurchaseTechIntentEvent, (e) =>
+      this.onSendPurchaseTechIntent(e),
     );
   }
 
@@ -507,6 +514,13 @@ export class Transport {
       type: "upgrade_structure",
       unit: event.unitType,
       unitId: event.unitId,
+    });
+  }
+
+  private onSendPurchaseTechIntent(event: SendPurchaseTechIntentEvent) {
+    this.sendIntent({
+      type: "purchase_tech",
+      techId: event.techId,
     });
   }
 

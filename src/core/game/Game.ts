@@ -586,6 +586,9 @@ export interface Player {
   research(): Gold;
   addResearch(toAdd: Gold): void;
   removeResearch(toRemove: Gold): Gold;
+  purchasedTechs(): ReadonlySet<string>;
+  hasTech(techId: string): boolean;
+  purchaseTech(techId: string): void;
   troops(): number;
   setTroops(troops: number): void;
   addTroops(troops: number): void;

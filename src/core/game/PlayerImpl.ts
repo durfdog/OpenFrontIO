@@ -106,6 +106,7 @@ export class PlayerImpl implements Player {
   private _gold: bigint;
   private _research: bigint;
   private _troops: bigint;
+  private _purchasedTechs = new Set<string>();
 
   markedTraitorTick = -1;
   markedDoomsdayClockTick = -1;
@@ -323,6 +324,10 @@ export class PlayerImpl implements Player {
       tilesOwned: this.numTilesOwned(),
       gold: this._gold,
       research: this._research,
+      purchasedTechs:
+        this._purchasedTechs.size > 0
+          ? Array.from(this._purchasedTechs)
+          : undefined,
       troops: this.troops(),
       allies: allies,
       embargoes: embargoes,
@@ -1188,6 +1193,18 @@ export class PlayerImpl implements Player {
     const actualRemoved = minInt(this._research, toRemove);
     this._research -= actualRemoved;
     return actualRemoved;
+  }
+
+  purchasedTechs(): ReadonlySet<string> {
+    return this._purchasedTechs;
+  }
+
+  hasTech(techId: string): boolean {
+    return this._purchasedTechs.has(techId);
+  }
+
+  purchaseTech(techId: string): void {
+    this._purchasedTechs.add(techId);
   }
 
   troops(): number {

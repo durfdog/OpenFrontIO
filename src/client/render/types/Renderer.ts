@@ -61,6 +61,7 @@ export interface PlayerState {
   gold: number;
   research: number;
   troops: number;
+  purchasedTechs: Set<string>;
   isTraitor: boolean;
   traitorRemainingTicks: number;
   inDoomsdayClock: boolean;

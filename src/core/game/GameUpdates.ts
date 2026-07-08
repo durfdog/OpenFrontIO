@@ -230,6 +230,7 @@ export interface PlayerUpdate {
   tilesOwned?: number;
   gold?: Gold;
   research?: Gold;
+  purchasedTechs?: string[];
   troops?: number;
   allies?: number[];
   embargoes?: Set<PlayerID>;

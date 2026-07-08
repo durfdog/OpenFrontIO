@@ -52,7 +52,8 @@ export type Intent =
   | KickPlayerIntent
   | TogglePauseIntent
   | UpdateGameConfigIntent
-  | ToggleGameStartTimer;
+  | ToggleGameStartTimer
+  | PurchaseTechIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
 export type CancelAttackIntent = z.infer<typeof CancelAttackIntentSchema>;
@@ -89,6 +90,7 @@ export type UpdateGameConfigIntent = z.infer<
 export type ToggleGameStartTimer = z.infer<
   typeof ToggleGameStartTimerIntentSchema
 >;
+export type PurchaseTechIntent = z.infer<typeof PurchaseTechIntentSchema>;
 
 export type Turn = z.infer<typeof TurnSchema>;
 export type GameConfig = z.infer<typeof GameConfigSchema>;
@@ -577,6 +579,11 @@ export const ToggleGameStartTimerIntentSchema = z.object({
   type: z.literal("toggle_game_start_timer"),
 });
 
+export const PurchaseTechIntentSchema = z.object({
+  type: z.literal("purchase_tech"),
+  techId: z.string(),
+});
+
 export const IntentSchema = z.discriminatedUnion("type", [
   AttackIntentSchema,
   CancelAttackIntentSchema,
@@ -603,6 +610,7 @@ export const IntentSchema = z.discriminatedUnion("type", [
   TogglePauseIntentSchema,
   UpdateGameConfigIntentSchema,
   ToggleGameStartTimerIntentSchema,
+  PurchaseTechIntentSchema,
 ]);
 
 // StampedIntent = Intent with server-stamped clientID (used in turns and execution)

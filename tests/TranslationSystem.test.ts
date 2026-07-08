@@ -34,6 +34,8 @@ const DYNAMIC_KEY_PATTERNS: RegExp[] = [
  */
 const IGNORED_UNUSED_KEY_PATTERNS: RegExp[] = [
   /^lang\./, // language metadata, not a UI translation key
+  /^tech_tree\./, // tech tree keys — data-driven, only used in untracked TechTreeOverlay
+  /^structures\./, // structure names used in untracked TechTreeOverlay
 ];
 
 type NestedTranslations = Record<string, unknown>;

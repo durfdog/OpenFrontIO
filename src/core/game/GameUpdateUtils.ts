@@ -46,6 +46,7 @@ export function diffPlayerUpdate(
     prev.isDisconnected === next.isDisconnected &&
     prev.isTraitor === next.isTraitor &&
     prev.research === next.research &&
+    stringArrayEqual(prev.purchasedTechs, next.purchasedTechs) &&
     prev.traitorRemainingTicks === next.traitorRemainingTicks &&
     prev.inDoomsdayClock === next.inDoomsdayClock &&
     prev.markedDoomsdayClockTick === next.markedDoomsdayClockTick &&
@@ -114,6 +115,10 @@ export function diffPlayerUpdate(
   );
   setIfDifferent("isLobbyCreator", prev.isLobbyCreator === next.isLobbyCreator);
   setIfDifferent("allies", numberArrayEqual(prev.allies, next.allies));
+  setIfDifferent(
+    "purchasedTechs",
+    stringArrayEqual(prev.purchasedTechs, next.purchasedTechs),
+  );
   setIfDifferent("targets", numberArrayEqual(prev.targets, next.targets));
   setIfDifferent(
     "outgoingAllianceRequests",
@@ -192,6 +197,7 @@ export function applyStateUpdate(target: PlayerState, pu: PlayerUpdate): void {
     target.incomingAttacks = pu.incomingAttacks;
   }
   if (pu.alliances !== undefined) target.alliances = pu.alliances;
+  if (pu.purchasedTechs !== undefined) target.purchasedTechs = new Set(pu.purchasedTechs);
   if (pu.outgoingEmojis !== undefined)
     target.outgoingEmojis = pu.outgoingEmojis;
 }

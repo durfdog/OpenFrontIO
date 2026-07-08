@@ -98,6 +98,8 @@ export function createRenderer(
   if (!techTreeOverlay || !(techTreeOverlay instanceof TechTreeOverlay)) {
     console.error("TechTreeOverlay element not found in the DOM");
   }
+  techTreeOverlay.game = game;
+  techTreeOverlay.eventBus = eventBus;
 
   const gameLeftSidebar = document.querySelector(
     "game-left-sidebar",

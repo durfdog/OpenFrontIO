@@ -38,6 +38,7 @@ function ps(overrides: Partial<PlayerState> = {}): PlayerState {
     betrayals: 0,
     hasSpawned: true,
     lastDeleteUnitTick: 0,
+    purchasedTechs: new Set(),
     allies: [],
     embargoes: [],
     targets: [],

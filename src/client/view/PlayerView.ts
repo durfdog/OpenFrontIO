@@ -79,6 +79,7 @@ function stateFromUpdate(pu: PlayerUpdate): PlayerState {
     tilesOwned: pu.tilesOwned!,
     gold: Number(pu.gold!),
     research: Number(pu.research ?? 0n),
+    purchasedTechs: new Set(pu.purchasedTechs ?? []),
     troops: pu.troops!,
     isTraitor: pu.isTraitor!,
     traitorRemainingTicks: Math.max(0, pu.traitorRemainingTicks ?? 0),
