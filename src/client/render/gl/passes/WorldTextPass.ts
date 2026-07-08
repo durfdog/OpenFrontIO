@@ -300,6 +300,24 @@ export class WorldTextPass {
     const now = this.now();
     const s = this.settings.bonusPopup;
     for (const evt of events) {
+      if (evt.research !== undefined && evt.research > 0) {
+        const x = evt.tile % this.mapW;
+        const y = Math.floor(evt.tile / this.mapW);
+        this.active.push({
+          x,
+          y: y + s.yOffset,
+          text: "+ " + formatGold(evt.research),
+          startMs: now,
+          lifetimeMs: s.lifetimeMs,
+          riseSpeed: s.riseSpeed,
+          colorR: 0.3,
+          colorG: 0.6,
+          colorB: 1.0,
+          scale: s.scale,
+          outlineWidth: s.outlineWidth,
+        });
+        continue;
+      }
       if (evt.gold === 0) continue;
       const x = evt.tile % this.mapW;
       const y = Math.floor(evt.tile / this.mapW);

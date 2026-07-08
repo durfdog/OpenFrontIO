@@ -665,6 +665,7 @@ export class GameView implements GameMap {
         tile: b.tile,
         gold: Number(b.gold),
         troops: b.troops,
+        research: b.research !== undefined ? Number(b.research) : undefined,
       });
     }
   }

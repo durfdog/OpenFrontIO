@@ -20,6 +20,7 @@ function makePlayerState(overrides: Partial<PlayerState> = {}): PlayerState {
     isDisconnected: false,
     tilesOwned: 0,
     gold: 0,
+    research: 0,
     troops: 100,
     isTraitor: false,
     traitorRemainingTicks: 0,

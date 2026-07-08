@@ -130,6 +130,7 @@ export interface BonusEventUpdate {
   tile: TileRef;
   gold: number;
   troops: number;
+  research?: number;
 }
 
 export interface RailroadConstructionUpdate {
@@ -228,6 +229,7 @@ export interface PlayerUpdate {
   isDisconnected?: boolean;
   tilesOwned?: number;
   gold?: Gold;
+  research?: Gold;
   troops?: number;
   allies?: number[];
   embargoes?: Set<PlayerID>;

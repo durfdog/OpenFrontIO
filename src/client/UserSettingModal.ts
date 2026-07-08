@@ -528,6 +528,16 @@ export class UserSettingModal extends BaseModal {
         @change=${this.handleKeybindChange}
       ></setting-keybind>
 
+      <setting-keybind
+        action="buildLab"
+        label=${translateText("user_setting.build_lab")}
+        description=${translateText("user_setting.build_lab_desc")}
+        defaultKey=${this.defaultKeybinds.buildLab}
+        .value=${this.getKeyValue("buildLab")}
+        .display=${this.getKeyChar("buildLab")}
+        @change=${this.handleKeybindChange}
+      ></setting-keybind>
+
       <h2
         class="text-blue-200 text-xl font-bold mt-8 mb-3 border-b border-white/10 pb-2"
       >

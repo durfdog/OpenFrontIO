@@ -37,6 +37,7 @@ const atomBombIcon = assetUrl("images/NukeIconWhite.svg");
 const portIcon = assetUrl("images/PortIcon.svg");
 const samlauncherIcon = assetUrl("images/SamLauncherIconWhite.svg");
 const shieldIcon = assetUrl("images/ShieldIconWhite.svg");
+const labIcon = assetUrl("images/BeakerIconWhite.svg");
 
 export interface BuildItemDisplay {
   unitType: PlayerBuildableUnitType;
@@ -116,6 +117,13 @@ export const buildTable: BuildItemDisplay[][] = [
       icon: factoryIcon,
       description: "build_menu.desc.factory",
       key: "unit_type.factory",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Lab,
+      icon: labIcon,
+      description: "build_menu.desc.lab",
+      key: "unit_type.lab",
       countable: true,
     },
   ],

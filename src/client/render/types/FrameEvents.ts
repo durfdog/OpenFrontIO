@@ -8,6 +8,7 @@ export interface BonusEvent {
   tile: number;
   gold: number;
   troops: number;
+  research?: number;
 }
 
 // ── FrameEvents ─────────────────────────────────────────────────────────

@@ -104,6 +104,7 @@ export class PlayerImpl implements Player {
   public _pseudo_random: PseudoRandom;
 
   private _gold: bigint;
+  private _research: bigint;
   private _troops: bigint;
 
   markedTraitorTick = -1;
@@ -157,6 +158,7 @@ export class PlayerImpl implements Player {
   ) {
     this._troops = toInt(startTroops);
     this._gold = mg.config().startingGold(playerInfo);
+    this._research = 0n;
     this._pseudo_random = new PseudoRandom(simpleHash(this.playerInfo.id));
   }
 
@@ -320,6 +322,7 @@ export class PlayerImpl implements Player {
       isDisconnected: this.isDisconnected(),
       tilesOwned: this.numTilesOwned(),
       gold: this._gold,
+      research: this._research,
       troops: this.troops(),
       allies: allies,
       embargoes: embargoes,
@@ -1170,6 +1173,23 @@ export class PlayerImpl implements Player {
     return actualRemoved;
   }
 
+  research(): Gold {
+    return this._research;
+  }
+
+  addResearch(toAdd: Gold): void {
+    this._research += toAdd;
+  }
+
+  removeResearch(toRemove: Gold): Gold {
+    if (toRemove <= 0n) {
+      return 0n;
+    }
+    const actualRemoved = minInt(this._research, toRemove);
+    this._research -= actualRemoved;
+    return actualRemoved;
+  }
+
   troops(): number {
     return Number(this._troops);
   }
@@ -1409,6 +1429,7 @@ export class PlayerImpl implements Player {
       case UnitType.SAMLauncher:
       case UnitType.City:
       case UnitType.Factory:
+      case UnitType.Lab:
         return this.landBasedStructureSpawn(targetTile, validTiles);
       default:
         assertNever(unitType);

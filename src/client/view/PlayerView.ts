@@ -78,6 +78,7 @@ function stateFromUpdate(pu: PlayerUpdate): PlayerState {
     isDisconnected: pu.isDisconnected!,
     tilesOwned: pu.tilesOwned!,
     gold: Number(pu.gold!),
+    research: Number(pu.research ?? 0n),
     troops: pu.troops!,
     isTraitor: pu.isTraitor!,
     traitorRemainingTicks: Math.max(0, pu.traitorRemainingTicks ?? 0),
@@ -474,6 +475,10 @@ export class PlayerView {
     // Engine Gold is bigint; renderer state stores number. Convert back at the
     // accessor for game-code that still expects bigint semantics.
     return BigInt(this.state.gold);
+  }
+
+  research(): Gold {
+    return BigInt(this.state.research);
   }
 
   troops(): number {

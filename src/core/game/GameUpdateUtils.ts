@@ -45,6 +45,7 @@ export function diffPlayerUpdate(
     prev.isAlive === next.isAlive &&
     prev.isDisconnected === next.isDisconnected &&
     prev.isTraitor === next.isTraitor &&
+    prev.research === next.research &&
     prev.traitorRemainingTicks === next.traitorRemainingTicks &&
     prev.inDoomsdayClock === next.inDoomsdayClock &&
     prev.markedDoomsdayClockTick === next.markedDoomsdayClockTick &&
@@ -91,6 +92,7 @@ export function diffPlayerUpdate(
   setIfDifferent("isDisconnected", prev.isDisconnected === next.isDisconnected);
   // tilesOwned / gold / troops intentionally absent — see EXCEPTION above.
   setIfDifferent("isTraitor", prev.isTraitor === next.isTraitor);
+  setIfDifferent("research", prev.research === next.research);
   setIfDifferent(
     "traitorRemainingTicks",
     prev.traitorRemainingTicks === next.traitorRemainingTicks,
@@ -159,6 +161,7 @@ export function applyStateUpdate(target: PlayerState, pu: PlayerUpdate): void {
     target.isDisconnected = pu.isDisconnected;
   if (pu.tilesOwned !== undefined) target.tilesOwned = pu.tilesOwned;
   if (pu.gold !== undefined) target.gold = Number(pu.gold);
+  if (pu.research !== undefined) target.research = Number(pu.research);
   if (pu.troops !== undefined) target.troops = pu.troops;
   if (pu.isTraitor !== undefined) target.isTraitor = pu.isTraitor;
   if (pu.traitorRemainingTicks !== undefined) {

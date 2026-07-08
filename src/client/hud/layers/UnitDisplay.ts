@@ -26,6 +26,7 @@ const atomBombIcon = assetUrl("images/NukeIconWhite.svg");
 const portIcon = assetUrl("images/PortIcon.svg");
 const samLauncherIcon = assetUrl("images/SamLauncherIconWhite.svg");
 const defensePostIcon = assetUrl("images/ShieldIconWhite.svg");
+const labIcon = assetUrl("images/BeakerIconWhite.svg");
 
 @customElement("unit-display")
 export class UnitDisplay extends LitElement implements Controller {
@@ -41,6 +42,7 @@ export class UnitDisplay extends LitElement implements Controller {
   private _port = 0;
   private _defensePost = 0;
   private _samLauncher = 0;
+  private _labs = 0;
   private allDisabled = false;
   private _hoveredUnit: PlayerBuildableUnitType | null = null;
 
@@ -101,6 +103,7 @@ export class UnitDisplay extends LitElement implements Controller {
     this._samLauncher = player.totalUnitLevels(UnitType.SAMLauncher);
     this._factories = player.totalUnitLevels(UnitType.Factory);
     this._warships = player.totalUnitLevels(UnitType.Warship);
+    this._labs = player.totalUnitLevels(UnitType.Lab);
     this.requestUpdate();
   }
 
@@ -192,6 +195,13 @@ export class UnitDisplay extends LitElement implements Controller {
             UnitType.MIRV,
             "mirv",
             this.keybinds["buildMIRV"]?.key ?? "0",
+          )}
+          ${this.renderUnitItem(
+            labIcon,
+            this._labs,
+            UnitType.Lab,
+            "lab",
+            this.keybinds["buildLab"]?.key ?? "-",
           )}
         </div>
       </div>

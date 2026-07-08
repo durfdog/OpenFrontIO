@@ -22,6 +22,7 @@ import {
   UT_MISSILE_SILO,
   UT_PORT,
   UT_SAM_LAUNCHER,
+  UT_LAB,
 } from "../../types";
 import { DynamicInstanceBuffer } from "../DynamicBuffer";
 import type { RenderSettings } from "../RenderSettings";
@@ -53,6 +54,7 @@ const STRUCTURE_ORDER = [
   UT_DEFENSE_POST,
   UT_SAM_LAUNCHER,
   UT_MISSILE_SILO,
+  UT_LAB,
 ] as const;
 
 const ATLAS_COLS = STRUCTURE_ORDER.length;
@@ -281,11 +283,29 @@ export class StructurePass {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = iconAtlasUrl;
-    await img.decode();
+
+    const labImg = new Image();
+    labImg.crossOrigin = "anonymous";
+    labImg.src = assetUrl("images/BeakerIconWhite.svg");
+
+    await Promise.all([
+      img.decode().catch((e) => console.error("Failed to decode icon-atlas.png", e)),
+      labImg.decode().catch((e) => console.error("Failed to decode BeakerIconWhite.svg", e)),
+    ]);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = img.width + 64;
+    canvas.height = img.height;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.drawImage(img, 0, 0);
+      ctx.drawImage(labImg, img.width, 0, 64, 64);
+    }
+
     const gl = this.gl;
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, this.atlasTex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.texParameteri(
       gl.TEXTURE_2D,

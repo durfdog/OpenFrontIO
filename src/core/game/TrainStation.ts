@@ -37,6 +37,39 @@ class TradeStationStopHandler implements TrainStopHandler {
   }
 }
 
+class LabTradeStationStopHandler implements TrainStopHandler {
+  onStop(
+    mg: Game,
+    station: TrainStation,
+    trainExecution: TrainExecution,
+  ): void {
+    const stationOwner = station.unit.owner();
+    const trainOwner = trainExecution.owner();
+    const research = mg
+      .config()
+      .trainGold(
+        rel(trainOwner, stationOwner),
+        trainExecution.tradeStopsVisited(),
+        trainOwner,
+      );
+    // Labs grant research instead of gold
+    if (trainOwner !== stationOwner) {
+      stationOwner.addResearch(research);
+    }
+    trainOwner.addResearch(research);
+    // Emit bonus event for the visual popup (only at the station tile, not
+    // both owners — avoids double-popups for self-to-self lab stops).
+    mg.addUpdate({
+      type: GameUpdateType.BonusEvent,
+      player: trainOwner.id(),
+      tile: station.tile(),
+      gold: 0,
+      troops: 0,
+      research: Number(research),
+    });
+  }
+}
+
 class FactoryStopHandler implements TrainStopHandler {
   onStop(
     mg: Game,
@@ -52,6 +85,7 @@ export function createTrainStopHandlers(
     [UnitType.City]: new TradeStationStopHandler(),
     [UnitType.Port]: new TradeStationStopHandler(),
     [UnitType.Factory]: new FactoryStopHandler(),
+    [UnitType.Lab]: new LabTradeStationStopHandler(),
   };
 }
 
@@ -164,7 +198,7 @@ export class Cluster {
 
   private isTradeStation(station: TrainStation): boolean {
     const type = station.unit.type();
-    return type === UnitType.City || type === UnitType.Port;
+    return type === UnitType.City || type === UnitType.Port || type === UnitType.Lab;
   }
 
   has(station: TrainStation) {
