@@ -354,7 +354,28 @@ export class NukeExecution implements Execution {
     const config = mg.config();
 
     const magnitude = config.nukeMagnitudes(this.nuke.type());
+    const outer2 = magnitude.outer * magnitude.outer;
     const toDestroy = this.tilesToDestroy();
+
+    // --- city_census: protect surviving cities and their tiles ---
+    // Before destroying tiles, identify cities that will survive via census
+    // so we can exclude their tiles from the destruction set.
+    // This must happen BEFORE tile relinquishment, because PlayerExecution
+    // deletes structures whose tile becomes unowned (TerraNullius).
+    const censusRand = new PseudoRandom(mg.ticks());
+    const survivingCityTiles = new Set<TileRef>();
+    for (const unit of mg.units()) {
+      const type = unit.type();
+      if (type !== UnitType.City) continue;
+      if (mg.euclideanDistSquared(this.dst, unit.tile()) >= outer2) continue;
+      if (!unit.owner().hasTech("city_census")) continue;
+      if (!censusRand.chance(2)) continue; // chance(2)=50% — city_census gives cities a 50% chance to survive each nuke
+      survivingCityTiles.add(unit.tile());
+    }
+    // Exclude survivor tiles from destruction — city and its land survive together
+    for (const tile of survivingCityTiles) {
+      toDestroy.delete(tile);
+    }
 
     // Retrieve all impacted players and the number of tiles
     const tilesPerPlayers = new Map<Player, number>();
@@ -419,7 +440,6 @@ export class NukeExecution implements Execution {
       }
     }
 
-    const outer2 = magnitude.outer * magnitude.outer;
     const dst = this.dst;
     const destroyer = this.player;
     for (const unit of mg.units()) {
@@ -434,6 +454,11 @@ export class NukeExecution implements Execution {
         continue;
       }
       if (mg.euclideanDistSquared(dst, unit.tile()) < outer2) {
+        // city_census survivors: tile was excluded from destruction and
+        // the city unit skips deletion
+        if (type === UnitType.City && survivingCityTiles.has(unit.tile())) {
+          continue;
+        }
         unit.delete(true, destroyer);
       }
     }

@@ -13,6 +13,7 @@ import {
   tileTraversalScratch,
   TileTraversalScratch,
 } from "../game/TileTraversalScratch";
+import { CitySelfDestructExecution } from "./CitySelfDestructExecution";
 import { calculateBoundingBox, getMode, inscribed, simpleHash } from "../Util";
 
 export class PlayerExecution implements Execution {
@@ -60,6 +61,16 @@ export class PlayerExecution implements Execution {
       const captor = this.mg!.player(owner.id());
       if (u.type() === UnitType.DefensePost) {
         u.delete(true, captor);
+      } else if (u.type() === UnitType.City && this.player.hasTech("city_trade_hub")) {
+        // City self-destructs on capture — the captor doesn't get it.
+        u.delete(true, captor);
+        this.mg!.addExecution(
+          new CitySelfDestructExecution(
+            this.player,
+            u.tile(),
+            this.config.citySelfDestructDelay(),
+          ),
+        );
       } else {
         captor.captureUnit(u);
       }

@@ -1381,8 +1381,8 @@
       "stealth_desc": "Stealth."
     },
     "city": {
-      "census": "Census",
-      "census_desc": "Census.",
+      "census": "Cities have a 50% chance of surviving nukes",
+      "census_desc": "Cities have a 50% chance to survive each nuke.",
       "conscription": "+10% troop generation speed",
       "conscription_desc": "Conscription.",
       "development": "+5k max population per city",
@@ -1391,8 +1391,8 @@
       "fortifications_desc": "Fortifications.",
       "militarization": "+5k max population per city",
       "militarization_desc": "Militarization.",
-      "trade_hub": "Trade Hub",
-      "trade_hub_desc": "Trade hub.",
+      "trade_hub": "Cities self destruct upon capture",
+      "trade_hub_desc": "When captured, your cities detonate like an atom bomb after a delay.",
       "urbanization": "Cities gain defense post bonuses",
       "urbanization_desc": "Urbanization."
     },

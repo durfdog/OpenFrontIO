@@ -358,6 +358,9 @@ export class GameView implements GameMap {
       if (pu.embargoes !== undefined) {
         this._relationsDirty = true;
       }
+      if (pu.purchasedTechs !== undefined) {
+        this._structuresDirty = true;
+      }
 
       if (existing !== undefined) {
         existing.applyUpdate(pu);

@@ -354,6 +354,9 @@ export class TechTreeOverlay extends LitElement {
             </div>
           </div>
 
+          <!-- Selected node description card -->
+          ${this.renderDescriptionCard(tree)}
+
           <!-- Close -->
           <div class="flex justify-center mt-3 shrink-0">
             <button
@@ -364,6 +367,59 @@ export class TechTreeOverlay extends LitElement {
             </button>
           </div>
         </div>
+      </div>
+    `;
+  }
+
+  private renderDescriptionCard(tree: TechNode[]) {
+    if (!this.selectedNodeId) return html``;
+
+    const node = tree.find((n) => n.id === this.selectedNodeId);
+    if (!node) return html``;
+
+    const state = this.nodeState(node);
+    const isPurchased = state === "purchased";
+    const isLocked = state === "locked";
+    const canInteract = !isPurchased && !isLocked && state !== "unaffordable";
+
+    return html`
+      <div
+        class="mt-3 border border-white/10 rounded-xl bg-gray-800/60 p-4 flex items-start gap-4 shrink-0"
+      >
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-sm font-bold text-white uppercase tracking-wider">
+              ${translateText(node.nameKey)}
+            </span>
+          </div>
+          <p class="text-sm text-gray-300 leading-relaxed">
+            ${translateText(node.descKey)}
+          </p>
+          <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
+            <span class="font-bold">${translateText("tech_tree.cost")}: ${node.cost.toLocaleString()}</span>
+            ${isPurchased
+              ? html`<span class="text-green-400 font-bold">&#10003;</span>`
+              : isLocked
+                ? html`<span class="text-red-400 font-bold">&#128274;</span>`
+                : ""}
+          </div>
+        </div>
+        ${!isPurchased && canInteract
+          ? html`
+              <button
+                class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-colors shrink-0"
+                @click=${(e: MouseEvent) => {
+                  e.stopPropagation();
+                  this.eventBus?.emit(new SendPurchaseTechIntentEvent(node.id));
+                  this.pendingTechs.add(node.id);
+                  this.selectedNodeId = null;
+                  this.requestUpdate();
+                }}
+              >
+                Purchase
+              </button>
+            `
+          : ""}
       </div>
     `;
   }

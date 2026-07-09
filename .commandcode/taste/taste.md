@@ -11,3 +11,6 @@
 # build-preview
 - Do not show a placement range ring for City units in BuildPreviewController. Confidence: 0.70
 
+# exploration
+- Use subagents (code-navigator) to explore unfamiliar codebases before making changes. Confidence: 0.70
+

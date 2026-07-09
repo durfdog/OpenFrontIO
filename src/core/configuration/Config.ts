@@ -174,6 +174,11 @@ export class Config {
     return 50_000;
   }
 
+  /** Delay in ticks before a city self-destructs after capture. 30 ticks = 3s @ 100ms/tick. */
+  citySelfDestructDelay(): number {
+    return 30;
+  }
+
   falloutDefenseModifier(falloutRatio: number): number {
     // falloutRatio is between 0 and 1
     // So defense modifier is between [5, 2.5]
