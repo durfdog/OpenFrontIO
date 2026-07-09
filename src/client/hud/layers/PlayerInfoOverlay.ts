@@ -18,6 +18,7 @@ import {
   TouchEvent,
 } from "../../InputHandler";
 import { themeProvider } from "../../theme/ThemeProvider";
+import { getTechNode } from "../../../core/tech/TechTreeData";
 import { TransformHandler } from "../../TransformHandler";
 import {
   getTranslatedPlayerTeamLabel,
@@ -303,23 +304,17 @@ export class PlayerInfoOverlay extends LitElement implements Controller {
     const playerTeam = getTranslatedPlayerTeamLabel(player.team());
 
     return html`
-      <div class="flex items-start gap-1 lg:gap-2 p-1 lg:p-1.5">
+      <div class="flex flex-col gap-1 p-1 lg:p-1.5">
+        <div class="flex items-start gap-1 lg:gap-2">
         <!-- Left: Gold, Research & Troop bar -->
-        <div class="flex flex-col gap-1 shrink-0 w-44 md:w-56">
+        <div class="flex flex-col gap-1 shrink-0">
           <div class="flex items-center gap-1">
             <div
-              class="flex items-center justify-center px-1 py-0.5 border rounded-md border-yellow-400 font-bold text-yellow-400 text-sm lg:gap-1 min-w-0"
+              class="flex items-center justify-center px-1 py-0.5 border rounded-md border-yellow-400 font-bold text-yellow-400 text-sm lg:gap-1"
               translate="no"
             >
               <img src=${goldCoinIcon} width="13" height="13" />
               <span class="px-0.5">${renderNumber(player.gold())}</span>
-            </div>
-            <div
-              class="flex items-center justify-center px-1 py-0.5 border rounded-md border-blue-400 font-bold text-blue-400 text-sm lg:gap-1 min-w-0"
-              translate="no"
-            >
-              <img src=${labIcon} width="13" height="13" />
-              <span class="px-0.5">${renderNumber(player.research())}</span>
             </div>
             <div
               class="flex flex-col items-center justify-center text-xs font-bold w-10 shrink-0 ${attackingTroops >
@@ -343,14 +338,14 @@ export class PlayerInfoOverlay extends LitElement implements Controller {
               >
             </div>
           </div>
-          <div class="w-44 md:w-56" translate="no">
+          <div class="w-[6.6rem] md:w-[8.4rem]" translate="no">
             ${this.renderTroopBar(totalTroops, attackingTroops, maxTroops)}
           </div>
         </div>
         <!-- Right: Player identity + Units below -->
         <div class="flex flex-col justify-between self-stretch">
           <div
-            class="flex items-center gap-2 font-bold text-sm lg:text-lg ${this.getPlayerNameColor(
+            class="flex flex-wrap items-center gap-2 font-bold text-sm lg:text-lg ${this.getPlayerNameColor(
               isFriendly ?? false,
             )}"
           >
@@ -381,6 +376,13 @@ export class PlayerInfoOverlay extends LitElement implements Controller {
                   >${playerType}</span
                 >`}
             ${this.renderPlayerNameIcons(player)} ${allianceHtml ?? ""}
+            <div
+              class="flex items-center justify-center px-1 py-0.5 border rounded-md border-blue-400 font-bold text-blue-400 text-sm lg:gap-1 ml-auto"
+              translate="no"
+            >
+              <img src=${labIcon} width="13" height="13" />
+              <span class="px-0.5">${renderNumber(player.research())}</span>
+            </div>
           </div>
           <div class="flex gap-0.5 lg:gap-1 items-center mt-0.5">
             ${this.displayUnitCount(player, UnitType.City, cityIcon)}
@@ -399,8 +401,32 @@ export class PlayerInfoOverlay extends LitElement implements Controller {
             ${this.displayUnitCount(player, UnitType.Warship, warshipIcon)}
           </div>
         </div>
+        </div>
+        ${this.renderPurchasedUpgrades(player)}
       </div>
     `;
+  }
+
+  private renderPurchasedUpgrades(player: PlayerView) {
+    const purchased = player.state.purchasedTechs;
+    if (purchased.size === 0) {
+      return html``;
+    }
+
+    const tags = [...purchased].map((techId) => {
+      const node = getTechNode(techId);
+      const fullTitle = node ? translateText(node.nameKey) : techId;
+      return html`<span
+        class="inline-flex items-center px-1.5 h-6 rounded border border-gray-500 bg-gray-700/70 text-xs font-semibold leading-none"
+        translate="no"
+      >
+        ${fullTitle}
+      </span>`;
+    });
+
+    return html`<div class="flex flex-wrap gap-1 px-1 lg:px-1.5 pb-1 mt-0.5">
+      ${tags}
+    </div>`;
   }
 
   private renderTroopBar(
@@ -503,8 +529,10 @@ export class PlayerInfoOverlay extends LitElement implements Controller {
         <div
           class="bg-gray-800/92 backdrop-blur-sm shadow-xs min-[1200px]:rounded-lg sm:rounded-b-lg shadow-lg text-white text-lg lg:text-base w-full sm:w-[500px] overflow-hidden ${containerClasses}"
         >
-          ${this.player !== null ? this.renderPlayerInfo(this.player) : ""}
-          ${this.unit !== null ? this.renderUnitInfo(this.unit) : ""}
+          <div class="flex justify-center">
+            ${this.player !== null ? this.renderPlayerInfo(this.player) : ""}
+            ${this.unit !== null ? this.renderUnitInfo(this.unit) : ""}
+          </div>
         </div>
       </div>
     `;
