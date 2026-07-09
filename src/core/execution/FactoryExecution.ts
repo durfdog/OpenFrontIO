@@ -32,10 +32,13 @@ export class FactoryExecution implements Execution {
   }
 
   private createStation(): void {
+    const stationTypes = this.game.config().legacyResearch()
+      ? [UnitType.City, UnitType.Port, UnitType.Factory, UnitType.Lab]
+      : [UnitType.City, UnitType.Port, UnitType.Factory];
     const structures = this.game.nearbyUnits(
       this.factory.tile()!,
       this.game.config().trainStationMaxRange(),
-      [UnitType.City, UnitType.Port, UnitType.Factory, UnitType.Lab],
+      stationTypes,
     );
 
     this.game.addExecution(new TrainStationExecution(this.factory, true));

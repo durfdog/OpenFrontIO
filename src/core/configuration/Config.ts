@@ -248,6 +248,9 @@ export class Config {
   donateTroops(): boolean {
     return this._gameConfig.donateTroops;
   }
+  legacyResearch(): boolean {
+    return this._gameConfig.legacyResearch ?? false;
+  }
   goldMultiplier(): number {
     return this._gameConfig.goldMultiplier ?? 1;
   }
@@ -494,7 +497,10 @@ export class Config {
             UnitType.Lab,
           ),
           constructionDuration: this.instantBuild() ? 0 : 2 * 10,
-          upgradable: false,
+          // In the new research system Labs stack into an existing Lab like a
+          // City. Under the legacy (train/rail) system Labs remain individual
+          // stations and are not upgraded.
+          upgradable: !this.legacyResearch(),
         };
         break;
       case UnitType.Train:
@@ -899,7 +905,8 @@ export class Config {
               player
                 .units(UnitType.Lab)
                 .filter((u) => !u.isUnderConstruction())
-                .length *
+                .map((lab) => lab.level())
+                .reduce((a, b) => a + b, 0) *
                 100000 +
               ((player.hasTech("city_development") ? 1 : 0) +
               (player.hasTech("city_militarization") ? 1 : 0) +

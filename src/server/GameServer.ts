@@ -277,6 +277,9 @@ export class GameServer {
       this.gameConfig.startingResearch =
         gameConfig.startingResearch ?? undefined;
     }
+    if (gameConfig.legacyResearch !== undefined) {
+      this.gameConfig.legacyResearch = gameConfig.legacyResearch ?? undefined;
+    }
     if (gameConfig.disableAlliances !== undefined) {
       this.gameConfig.disableAlliances =
         gameConfig.disableAlliances ?? undefined;

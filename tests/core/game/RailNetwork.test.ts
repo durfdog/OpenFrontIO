@@ -72,6 +72,7 @@ describe("RailNetworkImpl", () => {
         trainStationMaxRange: () => 80,
         trainStationMinRange: () => 10,
         railroadMaxSize: () => 100,
+        legacyResearch: () => true,
       }),
       x: vi.fn(() => 0),
       y: vi.fn(() => 0),

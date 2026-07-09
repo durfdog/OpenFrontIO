@@ -568,13 +568,19 @@ export class BuildPreviewController implements Controller {
   private resolveGhostRangeLevel(
     buildableUnit: BuildableUnit,
   ): number | undefined {
-    if (buildableUnit.type !== UnitType.SAMLauncher) return undefined;
+    if (
+      buildableUnit.type !== UnitType.SAMLauncher &&
+      buildableUnit.type !== UnitType.Lab
+    )
+      return undefined;
     if (buildableUnit.canUpgrade !== false) {
       const existing = this.game.unit(buildableUnit.canUpgrade);
       if (existing) {
         return existing.level() + 1;
       } else {
-        console.error("Failed to find existing SAMLauncher for upgrade");
+        console.error(
+          `Failed to find existing ${buildableUnit.type} for upgrade`,
+        );
       }
     }
     return 1;

@@ -37,7 +37,7 @@ export class LabExecution implements Execution {
       this.mg.config().trainStationMaxRange(),
       UnitType.Factory,
     );
-    if (nearbyFactory) {
+    if (nearbyFactory && this.mg.config().legacyResearch()) {
       this.mg.addExecution(new TrainStationExecution(this.lab));
     }
   }
