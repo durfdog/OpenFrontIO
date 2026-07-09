@@ -368,6 +368,7 @@ export const GameConfigSchema = z.object({
   startingGold: z.number().int().min(0).max(1000000000).nullable().optional(),
   researchMultiplier: z.number().min(0.1).max(1000).nullable().optional(),
   startingResearch: z.number().int().min(0).max(1000000000).nullable().optional(),
+  legacyResearch: z.boolean().nullable().optional(),
   hostCheats: z
     .object({
       infiniteGold: z.boolean().optional(),

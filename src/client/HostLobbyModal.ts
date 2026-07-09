@@ -96,6 +96,7 @@ export class HostLobbyModal extends BaseModal {
   @state() private whitelistEnabled: boolean = false;
   @state() private allowedPublicIds: string = "";
   @state() private waterNukes: boolean = false;
+  @state() private legacyResearch: boolean = false;
   @state() private lobbyId = "";
   @state() private lobbyUrlSuffix = "";
   @state() private clients: ClientInfo[] = [];
@@ -608,6 +609,10 @@ export class HostLobbyModal extends BaseModal {
                     checked: this.waterNukes,
                   },
                   {
+                    labelKey: "host_modal.use_legacy_research",
+                    checked: this.legacyResearch,
+                  },
+                  {
                     labelKey: "host_modal.doomsday_clock",
                     checked: this.doomsdayClock,
                     doomsdayClockSpeed: this.doomsdayClockSpeed,
@@ -963,6 +968,10 @@ export class HostLobbyModal extends BaseModal {
         break;
       case "host_modal.water_nukes":
         this.waterNukes = checked;
+        this.putGameConfig();
+        break;
+      case "host_modal.use_legacy_research":
+        this.legacyResearch = checked;
         this.putGameConfig();
         break;
       case "host_modal.doomsday_clock":
@@ -1514,6 +1523,7 @@ export class HostLobbyModal extends BaseModal {
               ? (this.parseAllowedPublicIds() ?? [])
               : [],
             waterNukes: this.waterNukes ? true : null,
+            legacyResearch: this.legacyResearch ? true : null,
             hostCheats: this.hostCheatsEnabled
               ? {
                   infiniteGold: this.hostCheatInfiniteGold || undefined,

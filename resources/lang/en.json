@@ -815,7 +815,8 @@
     "visibility_private": "Private",
     "visibility_public": "Public",
     "waiting": "Waiting for players...",
-    "water_nukes": "Water nukes"
+    "water_nukes": "Water nukes",
+    "use_legacy_research": "Use legacy research system"
   },
   "ios_banner": {
     "got_it": "Got it",
@@ -1315,7 +1316,8 @@
     "starting_research": "Starting Research (Millions)",
     "starting_research_placeholder": "5",
     "toggle_achievements": "Toggle achievements",
-    "water_nukes": "Water nukes"
+    "water_nukes": "Water nukes",
+    "use_legacy_research": "Use legacy research system"
   },
   "store": {
     "already_subscribed": "Already subscribed.",

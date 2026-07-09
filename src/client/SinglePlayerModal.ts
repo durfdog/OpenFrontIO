@@ -66,6 +66,7 @@ const DEFAULT_OPTIONS = {
   disabledUnits: [] as UnitType[],
   disableAlliances: false,
   waterNukes: false,
+  legacyResearch: false,
   doomsdayClock: false,
   doomsdayClockSpeed: "normal" as DoomsdayClockSpeed,
 } as const;
@@ -159,6 +160,7 @@ export class SinglePlayerModal extends BaseModal {
   ];
   @state() private disableAlliances: boolean = DEFAULT_OPTIONS.disableAlliances;
   @state() private waterNukes: boolean = DEFAULT_OPTIONS.waterNukes;
+  @state() private legacyResearch: boolean = DEFAULT_OPTIONS.legacyResearch;
   @state() private doomsdayClock: boolean = DEFAULT_OPTIONS.doomsdayClock;
   @state() private doomsdayClockSpeed: DoomsdayClockSpeed =
     DEFAULT_OPTIONS.doomsdayClockSpeed;
@@ -497,6 +499,10 @@ export class SinglePlayerModal extends BaseModal {
                     checked: this.waterNukes,
                   },
                   {
+                    labelKey: "single_modal.use_legacy_research",
+                    checked: this.legacyResearch,
+                  },
+                  {
                     labelKey: "single_modal.doomsday_clock",
                     checked: this.doomsdayClock,
                     doomsdayClockSpeed: this.doomsdayClockSpeed,
@@ -689,6 +695,9 @@ export class SinglePlayerModal extends BaseModal {
         break;
       case "single_modal.water_nukes":
         this.waterNukes = checked;
+        break;
+      case "single_modal.use_legacy_research":
+        this.legacyResearch = checked;
         break;
       case "single_modal.doomsday_clock":
         this.doomsdayClock = checked;
@@ -963,6 +972,7 @@ export class SinglePlayerModal extends BaseModal {
                 : {}),
               ...(this.disableAlliances ? { disableAlliances: true } : {}),
               ...(this.waterNukes ? { waterNukes: true } : {}),
+              ...(this.legacyResearch ? { legacyResearch: true } : {}),
               ...(this.doomsdayClock
                 ? {
                     doomsdayClock: {
