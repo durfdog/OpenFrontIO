@@ -32,7 +32,10 @@ export interface FrameUploadTarget {
   uploadRailroadState(data: Uint8Array): void;
   applyRailroadDust(tileRefs: number[]): void;
   updateUnits(units: ReadonlyMap<number, UnitState>, gameTick: number): void;
-  updateStructures(units: ReadonlyMap<number, UnitState>): void;
+  updateStructures(
+    units: ReadonlyMap<number, UnitState>,
+    urbanizationOwners?: ReadonlySet<number>,
+  ): void;
   applyDeadUnits(deadUnits: DeadUnitFx[]): void;
   applyConquestEvents(events: ConquestFx[]): void;
   applyBonusEvents(events: BonusEvent[]): void;
@@ -88,7 +91,13 @@ export function uploadFrameData(
   // --- Units + structures ---
   view.updateUnits(frame.units, frame.tick);
   if (frame.structuresDirty) {
-    view.updateStructures(frame.units);
+    const urbanizationOwners = new Set<number>();
+    for (const [smallID, p] of frame.players) {
+      if (p.purchasedTechs.has("city_urbanization")) {
+        urbanizationOwners.add(smallID);
+      }
+    }
+    view.updateStructures(frame.units, urbanizationOwners);
   }
 
   // --- Ephemeral effects ---

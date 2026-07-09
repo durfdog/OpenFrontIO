@@ -474,7 +474,16 @@ function mountWebGLFrameLoop(
 
     // Structures, railroads and relations normally skip GPU upload unless
     // marked dirty, now force
-    view.updateStructures(frameData.units as Map<number, UnitState>);
+    const urbanizationOwners = new Set<number>();
+    for (const [smallID, p] of frameData.players) {
+      if (p.purchasedTechs.has("city_urbanization")) {
+        urbanizationOwners.add(smallID);
+      }
+    }
+    view.updateStructures(
+      frameData.units as Map<number, UnitState>,
+      urbanizationOwners,
+    );
     view.uploadRailroadState(frameData.railroadState);
     view.updateRelations(frameData.relationMatrix, frameData.relationSize);
 

@@ -186,8 +186,11 @@ export class MapRenderer {
   updateRelations(data: Uint8Array, size: number): void {
     this.renderer?.updateRelations(data, size);
   }
-  updateStructures(units: Map<number, UnitState>): void {
-    this.renderer?.updateStructures(units);
+  updateStructures(
+    units: Map<number, UnitState>,
+    urbanizationOwners?: ReadonlySet<number>,
+  ): void {
+    this.renderer?.updateStructures(units, urbanizationOwners);
   }
   applyDeadUnits(deadUnits: DeadUnitFx[]): void {
     this.renderer?.applyDeadUnits(deadUnits);

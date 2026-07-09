@@ -97,6 +97,9 @@ const SAM_RADIUS_HIGHLIGHT_TYPES = new Set([
 
 const GRID_VIEW_KEY = "renderer:grid_view_enabled";
 
+/** Shared empty set passed to updateStructures when no urbanization owners exist. */
+const EMPTY_SET: ReadonlySet<number> = new Set();
+
 export class GPURenderer {
   private gl: WebGL2RenderingContext;
   private camera: Camera;
@@ -870,7 +873,10 @@ export class GPURenderer {
     this.affiliationPalette.updateRelations(data, size);
   }
 
-  updateStructures(units: Map<number, UnitState>): void {
+  updateStructures(
+    units: Map<number, UnitState>,
+    urbanizationOwners: ReadonlySet<number> = EMPTY_SET,
+  ): void {
     this.lastStructures = units;
     this.structurePass.updateStructures(units);
     this.structureLevelPass.updateStructures(units);
@@ -879,7 +885,11 @@ export class GPURenderer {
     const posts: { x: number; y: number; ownerID: number }[] = [];
     const w = this.mapW;
     for (const u of units.values()) {
-      if (u.unitType === "Defense Post" && !u.underConstruction) {
+      if (u.underConstruction) continue;
+      const isDefensePost = u.unitType === "Defense Post";
+      const isUrbanCity =
+        u.unitType === "City" && urbanizationOwners.has(u.ownerID);
+      if (isDefensePost || isUrbanCity) {
         posts.push({
           x: u.pos % w,
           y: (u.pos - (u.pos % w)) / w,

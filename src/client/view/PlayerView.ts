@@ -486,6 +486,10 @@ export class PlayerView {
     return this.state.troops;
   }
 
+  hasTech(techId: string): boolean {
+    return this.state.purchasedTechs.has(techId);
+  }
+
   totalUnitLevels(type: UnitType): number {
     return this.units(type)
       .filter((unit) => !unit.isUnderConstruction())

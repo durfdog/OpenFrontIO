@@ -170,6 +170,10 @@ export class Config {
     return 250_000;
   }
 
+  cityPopTechBonus(): number {
+    return 50_000;
+  }
+
   falloutDefenseModifier(falloutRatio: number): number {
     // falloutRatio is between 0 and 1
     // So defense modifier is between [5, 2.5]
@@ -710,6 +714,23 @@ export class Config {
           break;
         }
       }
+      // city_urbanization: cities grant the same defensive bonus as defense posts.
+      if (defender.hasTech("city_urbanization")) {
+        for (const city of gm.nearbyUnits(
+          tileToConquer,
+          gm.config().defensePostRange(),
+          UnitType.City,
+        )) {
+          if (
+            city.unit.owner() === defender &&
+            !city.unit.isUnderConstruction()
+          ) {
+            mag *= this.defensePostDefenseBonus();
+            speed *= this.defensePostSpeedBonus();
+            break;
+          }
+        }
+      }
     }
 
     if (gm.hasFallout(tileToConquer)) {
@@ -874,7 +895,14 @@ export class Config {
                 .units(UnitType.Lab)
                 .filter((u) => !u.isUnderConstruction())
                 .length *
-                100000,
+                100000 +
+              ((player.hasTech("city_development") ? 1 : 0) +
+              (player.hasTech("city_militarization") ? 1 : 0) +
+              (player.hasTech("city_fortifications") ? 1 : 0)) *
+              player
+                .units(UnitType.City)
+                .filter((u) => !u.isUnderConstruction()).length *
+              this.cityPopTechBonus(),
           );
 
     if (player.type() === PlayerType.Bot) {
@@ -928,6 +956,10 @@ export class Config {
         default:
           assertNever(this._gameConfig.difficulty);
       }
+    }
+
+    if (player.hasTech("city_conscription")) {
+      toAdd *= 1.1;
     }
 
     return Math.min(player.troops() + toAdd, max) - player.troops();

@@ -402,9 +402,6 @@ export class TechTreeOverlay extends LitElement {
               >`
             : ""}
         </div>
-        <p class="text-[10px] text-gray-400 leading-tight line-clamp-2">
-          ${translateText(node.descKey)}
-        </p>
         <div
           class="flex items-center justify-center gap-1 pt-1 border-t border-white/10"
         >
