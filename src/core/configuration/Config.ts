@@ -1296,7 +1296,7 @@ export class Config {
 
   /** Forced Labor (defense_bunker): defense posts cost no gold. Default false. */
   defensePostIsFree(player: Player | PlayerView): boolean {
-    return false;
+    return player.hasTech("defense_bunker");
   }
 
   /** Minefield (defense_development): extra attacker-troop-loss multiplier
