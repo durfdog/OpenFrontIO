@@ -1499,7 +1499,24 @@ export class PlayerImpl implements Player {
         silo.isActive() && !silo.isInCooldown() && !silo.isUnderConstruction(),
     );
 
-    return bestSilo?.tile() ?? false;
+    if (bestSilo !== null) {
+      return bestSilo.tile();
+    }
+
+    // A player with the MAD tech can launch nukes manually from a completed
+    // defense post even without a missile silo.
+    if (this.hasTech("defense_flare")) {
+      const bestPost = findClosestBy(
+        this.units(UnitType.DefensePost),
+        (post) => mg.manhattanDist(post.tile(), tile),
+        (post) => post.isActive() && !post.isUnderConstruction(),
+      );
+      if (bestPost !== null) {
+        return bestPost.tile();
+      }
+    }
+
+    return false;
   }
 
   portSpawn(tile: TileRef, validTiles: TileRef[] | null): TileRef | false {

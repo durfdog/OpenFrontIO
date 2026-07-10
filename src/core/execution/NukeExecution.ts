@@ -235,12 +235,19 @@ export class NukeExecution implements Execution {
         this.mg.stats().bombLaunch(this.player, target, this.nukeType);
       }
 
-      // after sending a nuke set the missilesilo on cooldown
+      // after sending a nuke set the source on cooldown
       const silo = this.player
         .units(UnitType.MissileSilo)
         .find((silo) => silo.tile() === spawn);
       if (silo) {
         silo.launch();
+      } else {
+        const post = this.player
+          .units(UnitType.DefensePost)
+          .find((post) => post.tile() === spawn);
+        if (post) {
+          post.launch();
+        }
       }
       return;
     }
