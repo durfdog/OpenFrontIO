@@ -14,6 +14,7 @@ interface Entry {
   score: string;
   gold: string;
   maxTroops: string;
+  research: string;
   isMyPlayer: boolean;
   isOnSameTeam: boolean;
   player: PlayerView;
@@ -30,7 +31,7 @@ export class Leaderboard extends LitElement implements Controller {
   private showTopFive = true;
 
   @state()
-  private _sortKey: "tiles" | "gold" | "maxtroops" = "tiles";
+  private _sortKey: "tiles" | "gold" | "maxtroops" | "research" = "tiles";
 
   @state()
   private _sortOrder: "asc" | "desc" = "desc";
@@ -57,7 +58,7 @@ export class Leaderboard extends LitElement implements Controller {
     this.updateLeaderboard();
   }
 
-  private setSort(key: "tiles" | "gold" | "maxtroops") {
+  private setSort(key: "tiles" | "gold" | "maxtroops" | "research") {
     if (this._sortKey === key) {
       this._sortOrder = this._sortOrder === "asc" ? "desc" : "asc";
     } else {
@@ -94,6 +95,11 @@ export class Leaderboard extends LitElement implements Controller {
       case "maxtroops":
         sorted.sort((a, b) => compare(a.maxTroops, b.maxTroops));
         break;
+      case "research":
+        sorted.sort((a, b) =>
+          compare(Number(a.pv.research()), Number(b.pv.research())),
+        );
+        break;
       default:
         sorted.sort((a, b) =>
           compare(a.pv.numTilesOwned(), b.pv.numTilesOwned()),
@@ -119,6 +125,7 @@ export class Leaderboard extends LitElement implements Controller {
         ),
         gold: renderNumber(player.gold()),
         maxTroops: renderTroops(maxTroops),
+        research: renderNumber(player.research()),
         isMyPlayer: player === myPlayer,
         isOnSameTeam:
           myPlayer !== null &&
@@ -150,6 +157,7 @@ export class Leaderboard extends LitElement implements Controller {
           ),
           gold: renderNumber(myPlayer.gold()),
           maxTroops: renderTroops(myPlayerMaxTroops),
+          research: renderNumber(myPlayer.research()),
           isMyPlayer: true,
           isOnSameTeam: true,
           player: myPlayer,
@@ -179,7 +187,7 @@ export class Leaderboard extends LitElement implements Controller {
       >
         <div
           class="grid bg-gray-800/85 w-full text-xs md:text-xs lg:text-sm rounded-lg overflow-hidden"
-          style="grid-template-columns: minmax(24px, 30px) minmax(60px, 100px) minmax(45px, 70px) minmax(40px, 55px) minmax(55px, 105px);"
+          style="grid-template-columns: minmax(20px, 26px) minmax(52px, 92px) minmax(38px, 62px) minmax(34px, 48px) minmax(48px, 92px) minmax(44px, 72px);"
         >
           <div class="contents font-bold bg-gray-700/60">
             <div class="py-1 md:py-2 text-center border-b border-slate-500">
@@ -218,6 +226,17 @@ export class Leaderboard extends LitElement implements Controller {
             >
               ${translateText("leaderboard.maxtroops")}
               ${this._sortKey === "maxtroops"
+                ? this._sortOrder === "asc"
+                  ? "⬆️"
+                  : "⬇️"
+                : ""}
+            </div>
+            <div
+              class="py-1 md:py-2 text-center border-b border-slate-500 cursor-pointer whitespace-nowrap truncate"
+              @click=${() => this.setSort("research")}
+            >
+              ${translateText("leaderboard.research")}
+              ${this._sortKey === "research"
                 ? this._sortOrder === "asc"
                   ? "⬆️"
                   : "⬇️"
@@ -274,6 +293,14 @@ export class Leaderboard extends LitElement implements Controller {
                     : ""}"
                 >
                   ${player.maxTroops}
+                </div>
+                <div
+                  class="py-1 md:py-2 text-center ${index <
+                  this.players.length - 1
+                    ? "border-b border-slate-500"
+                    : ""}"
+                >
+                  ${player.research}
                 </div>
               </div>
             `,
