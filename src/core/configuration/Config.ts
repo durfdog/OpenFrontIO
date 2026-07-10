@@ -1324,7 +1324,7 @@ export class Config {
    *  posts. Default 0. */
   permanentDefendersPopBonus(player: Player | PlayerView): number {
     if (!player.hasTech("defense_militia")) return 0;
-    return player.units(UnitType.DefensePost).filter((u) => !u.isUnderConstruction()).length * 5000;
+    return player.units(UnitType.DefensePost).filter((u) => !u.isUnderConstruction()).length * 50000;
   }
 
   // --- Port turret (port_turret) ---

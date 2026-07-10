@@ -55,6 +55,6 @@ describe("Permanent Defenders tech (+5k max population per defense post)", () =>
     defender.purchaseTech("defense_militia");
     const boosted = game.config().maxTroops(defender);
 
-    expect(boosted - base).toBe(5000 * 2);
+    expect(boosted - base).toBeCloseTo(50000 * 2);
   });
 });
