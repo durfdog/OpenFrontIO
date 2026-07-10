@@ -10,6 +10,7 @@
  */
 
 import type { Config } from "../../../core/configuration/Config";
+import type { Player } from "../../../core/game/Game";
 import type {
   AttackRingInput,
   BonusEvent,
@@ -142,6 +143,7 @@ export class GPURenderer {
   private heatManager: HeatManager;
   private affiliationPalette: AffiliationPalette;
   private coordinateGridPass: CoordinateGridPass;
+  private config: Config;
   private spawnOverlayPass: SpawnOverlayPass;
   private inSpawnPhase = false;
 
@@ -206,11 +208,11 @@ export class GPURenderer {
     raf: typeof requestAnimationFrame = requestAnimationFrame.bind(window),
     caf: typeof cancelAnimationFrame = cancelAnimationFrame.bind(window),
   ) {
-    this.canvas = canvas;
-    // Settings are resolved (defaults + user overrides) by the caller and
+    this.canvas = canvas;    // Settings are resolved (defaults + user overrides) by the caller and
     // passed in, so every pass — including texture-baking ones like terrain —
     // is built with the final values. Live changes mutate this object in place.
     this.settings = settings;
+    this.config = config;
     this.raf = raf;
     this.caf = caf;
 
@@ -876,13 +878,15 @@ export class GPURenderer {
   updateStructures(
     units: Map<number, UnitState>,
     urbanizationOwners: ReadonlySet<number> = EMPTY_SET,
+    players?: ReadonlyMap<number, PlayerState>,
   ): void {
     this.lastStructures = units;
     this.structurePass.updateStructures(units);
     this.structureLevelPass.updateStructures(units);
     this.samRadiusPass.updateStructures(units);
     this.unitPass.setStructures(units);
-    const posts: { x: number; y: number; ownerID: number }[] = [];
+    const posts: { x: number; y: number; ownerID: number; range: number }[] =
+      [];
     const w = this.mapW;
     for (const u of units.values()) {
       if (u.underConstruction) continue;
@@ -894,10 +898,28 @@ export class GPURenderer {
           x: u.pos % w,
           y: (u.pos - (u.pos % w)) / w,
           ownerID: u.ownerID,
+          range: this.defensePostRangeForOwner(u.ownerID, players),
         });
       }
     }
     this.defenseCoveragePass.updateDefensePosts(posts);
+  }
+
+  /**
+   * Per-owner defense post coverage radius (in tiles). Reflects the Snipers
+   * tech (defense_radar), which boosts the radius 1.5× for the owning player.
+   */
+  private defensePostRangeForOwner(
+    ownerID: number,
+    players?: ReadonlyMap<number, PlayerState>,
+  ): number {
+    const ps = players?.get(ownerID);
+    if (ps && ps.purchasedTechs.has("defense_radar")) {
+      return this.config.defensePostRange({
+        hasTech: (id: string) => ps.purchasedTechs.has(id),
+      } as unknown as Player);
+    }
+    return this.config.defensePostRange();
   }
 
   applyDeadUnits(deadUnits: DeadUnitFx[]): void {

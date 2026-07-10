@@ -443,7 +443,9 @@ export class BuildPreviewController implements Controller {
         rangeRadius = this.game.config().trainStationMaxRange();
         break;
       case UnitType.DefensePost:
-        rangeRadius = this.game.config().defensePostRange();
+        rangeRadius = this.game
+          .config()
+          .defensePostRange(this.game.myPlayer() ?? undefined);
         break;
     }
     let radiusTileX = this.game.x(tileRef);

@@ -35,6 +35,7 @@ export interface FrameUploadTarget {
   updateStructures(
     units: ReadonlyMap<number, UnitState>,
     urbanizationOwners?: ReadonlySet<number>,
+    players?: ReadonlyMap<number, PlayerState>,
   ): void;
   applyDeadUnits(deadUnits: DeadUnitFx[]): void;
   applyConquestEvents(events: ConquestFx[]): void;
@@ -97,7 +98,7 @@ export function uploadFrameData(
         urbanizationOwners.add(smallID);
       }
     }
-    view.updateStructures(frame.units, urbanizationOwners);
+    view.updateStructures(frame.units, urbanizationOwners, frame.players);
   }
 
   // --- Ephemeral effects ---
