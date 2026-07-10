@@ -281,6 +281,7 @@ export class WarshipExecution implements Execution {
           !hasPort ||
           patrolTile === undefined ||
           unit.isSafeFromPirates() ||
+          unit.immuneToPiracy() ||
           unit.targetUnit()?.owner() === owner ||
           unit.targetUnit()?.owner().isFriendly(owner)
         ) {

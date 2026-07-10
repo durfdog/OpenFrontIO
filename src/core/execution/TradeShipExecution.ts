@@ -8,6 +8,7 @@ import {
   UnitType,
 } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { PseudoRandom } from "../PseudoRandom";
 import { WaterPathFinder } from "../pathfinding/PathFinder";
 import { PathStatus } from "../pathfinding/types";
 import { findClosestBy } from "../Util";
@@ -37,6 +38,7 @@ export class TradeShipExecution implements Execution {
   private tilesTraveled = 0;
   private motionPlanId = 1;
   private motionPlanDst: TileRef | null = null;
+  private random: PseudoRandom;
 
   private static _staggerCounter = 0;
 
@@ -51,6 +53,7 @@ export class TradeShipExecution implements Execution {
     const stagger =
       TradeShipExecution._staggerCounter++ % WaterPathFinder.STAGGER_SPREAD;
     this.pathFinder = new WaterPathFinder(mg, stagger);
+    this.random = new PseudoRandom(mg.ticks());
   }
 
   tick(ticks: number): void {
@@ -68,9 +71,16 @@ export class TradeShipExecution implements Execution {
         this.active = false;
         return;
       }
+      // port_logistics gives a 50% chance per ship to be immune to piracy.
+      const immunityOdds = this.mg.config().tradeShipPiracyImmunityOdds(
+        this.origOwner,
+      );
+      const immuneToPiracy =
+        immunityOdds > 0 && this.random.chance(immunityOdds);
       this.tradeShip = this.origOwner.buildUnit(UnitType.TradeShip, spawn, {
         targetUnit: this._dstPort,
         lastSetSafeFromPirates: ticks,
+        immuneToPiracy,
       });
       this.mg.stats().boatSendTrade(this.origOwner, this._dstPort.owner());
     }

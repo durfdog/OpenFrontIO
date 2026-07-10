@@ -266,6 +266,7 @@ export interface UnitParamsMap {
   [UnitType.TradeShip]: {
     targetUnit: Unit;
     lastSetSafeFromPirates?: number;
+    immuneToPiracy?: boolean;
   };
 
   [UnitType.Train]: {
@@ -516,6 +517,7 @@ export interface Unit {
   // Trade Ships
   setSafeFromPirates(): void; // Only for trade ships
   isSafeFromPirates(): boolean; // Only for trade ships
+  immuneToPiracy(): boolean; // Only for trade ships
 
   // Construction phase on structures
   isUnderConstruction(): boolean;

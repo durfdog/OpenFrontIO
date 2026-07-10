@@ -388,7 +388,12 @@ export class Config {
     return player.hasTech("port_navigation") ? 2 : 1;
   }
 
-  // Multiplier applied to gold paid *out* to a recipient (any player other
+  // Denominator for the per-ship piracy-immunity roll. Owners of the
+  // port_logistics tech get 2 (i.e. a 1/2 = 50% chance) per trade ship; other
+  // players get 0 (never immune). Used with PseudoRandom.chance(odds).
+  tradeShipPiracyImmunityOdds(player: Player | PlayerView): number {
+    return player.hasTech("port_logistics") ? 2 : 0;
+  }
   // than the trade ship's owner) from a trade ship, when the owner has the
   // port_convoy tech. The owner keeps their full share; everyone else gets
   // 50% less.

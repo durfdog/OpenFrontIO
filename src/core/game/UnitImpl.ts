@@ -31,6 +31,7 @@ export class UnitImpl implements Unit {
   private _wasDestroyedByEnemy: boolean = false;
   private _destroyer: Player | undefined = undefined;
   private _lastSetSafeFromPirates: number; // Only for trade ships
+  private _immuneToPiracy = false; // Only for trade ships
   private _underConstruction: boolean = false;
   private _lastOwner: PlayerImpl | null = null;
   private _troops: number;
@@ -64,6 +65,8 @@ export class UnitImpl implements Unit {
       "lastSetSafeFromPirates" in params
         ? (params.lastSetSafeFromPirates ?? 0)
         : 0;
+    this._immuneToPiracy =
+      "immuneToPiracy" in params ? (params.immuneToPiracy ?? false) : false;
     if (this._type === UnitType.TransportShip) {
       this._transportShipState = { isRetreating: false, troops: 0 };
     }
@@ -532,6 +535,10 @@ export class UnitImpl implements Unit {
       this.mg.ticks() - this._lastSetSafeFromPirates <
       this.mg.config().safeFromPiratesCooldownMax()
     );
+  }
+
+  immuneToPiracy(): boolean {
+    return this._immuneToPiracy;
   }
 
   level(): number {
