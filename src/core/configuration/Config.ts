@@ -1291,6 +1291,9 @@ export class Config {
   defensePostRadiusMultiplier(
     player?: Player | PlayerView | TerraNullius,
   ): number {
+    if (player !== undefined && "hasTech" in player && player.hasTech("defense_radar")) {
+      return 1.5;
+    }
     return 1;
   }
 
