@@ -1169,11 +1169,11 @@ export class Config {
 
   // --- Lighthouse (port_shipbuilding) ---
   // Warships owned by you or your allies that are within range of an allied
-  // port get +50% attack speed and +50% movement speed.
+  // port get +100% attack speed and +100% movement speed.
 
   /** Tile radius (Euclidean) within which an allied port grants the buff. */
   lighthouseRange(): number {
-    return 30;
+    return 50;
   }
 
   warshipLighthouseAttackSpeedBonus(): number {

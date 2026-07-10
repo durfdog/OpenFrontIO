@@ -811,12 +811,12 @@
     "teams_Trios": "Trios (teams of 3)",
     "title": "Create Lobby",
     "toggle_name_reveal": "Toggle whether this player can see real names",
+    "use_legacy_research": "Use legacy research system",
     "view_subscriptions": "View Subscriptions",
     "visibility_private": "Private",
     "visibility_public": "Public",
     "waiting": "Waiting for players...",
-    "water_nukes": "Water nukes",
-    "use_legacy_research": "Use legacy research system"
+    "water_nukes": "Water nukes"
   },
   "ios_banner": {
     "got_it": "Got it",
@@ -1319,8 +1319,8 @@
     "starting_research": "Starting Research (Millions)",
     "starting_research_placeholder": "5",
     "toggle_achievements": "Toggle achievements",
-    "water_nukes": "Water nukes",
-    "use_legacy_research": "Use legacy research system"
+    "use_legacy_research": "Use legacy research system",
+    "water_nukes": "Water nukes"
   },
   "store": {
     "already_subscribed": "Already subscribed.",
@@ -1369,7 +1369,6 @@
     "yellow": "Yellow"
   },
   "tech_tree": {
-    "double_click_tip": "Double click upgrade to purchase. Use structure keybinds or scrolling for quick navigation. Press escape or your research overlay keybind to exit.",
     "atombomb": {
       "delivery": "Drop",
       "delivery_desc": "Delivery",
@@ -1418,6 +1417,7 @@
       "watchtower": "Lookout",
       "watchtower_desc": "Watchtower"
     },
+    "double_click_tip": "Double click upgrade to purchase. Use structure keybinds or scrolling for quick navigation. Press escape or your research overlay keybind to exit.",
     "efficiency": "Overclock",
     "efficiency_desc": "Efficiency",
     "factory": {
@@ -1425,10 +1425,10 @@
       "assembly_line_desc": "+5k trade gold",
       "development": "Trade Gold",
       "development_desc": "+5k trade gold",
-      "mass_production": "Bulk Gold",
-      "mass_production_desc": "+5k trade gold",
       "fortified_factories": "Flat Ground",
       "fortified_factories_desc": "Removes terrain penalty for attacks within the range of your factory",
+      "mass_production": "Bulk Gold",
+      "mass_production_desc": "+5k trade gold",
       "prototyping": "Pop Shop",
       "prototyping_desc": "+5k max population per factory",
       "quality_control": "Crossing Cash",
@@ -1501,7 +1501,7 @@
       "repair_yard": "Fixer",
       "repair_yard_desc": "Repair Yard",
       "shipbuilding": "Lighthouse",
-      "shipbuilding_desc": "You and your allies' warships get +50% attack speed and +50% movement speed within 30 tiles of your ports."
+      "shipbuilding_desc": "You and your allies' warships get +50% attack speed and +50% movement speed within 50 tiles of your ports."
     },
     "sam": {
       "autoloader": "Reload",
