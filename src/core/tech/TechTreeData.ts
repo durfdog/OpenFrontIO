@@ -45,8 +45,8 @@ export const TECH_TREES: Record<string, TechNode[]> = {
     { id: "port_shipbuilding", nameKey: "tech_tree.port.shipbuilding", descKey: "tech_tree.port.shipbuilding_desc", cost: 600_000, layer: 2, prerequisites: ["port_development"], mutuallyExclusiveWith: ["port_navigation"] },
     { id: "port_convoy", nameKey: "tech_tree.port.convoy", descKey: "tech_tree.port.convoy_desc", cost: 1_500_000, layer: 3, prerequisites: ["port_navigation"], mutuallyExclusiveWith: ["port_logistics"] },
     { id: "port_logistics", nameKey: "tech_tree.port.logistics", descKey: "tech_tree.port.logistics_desc", cost: 1_500_000, layer: 3, prerequisites: ["port_navigation"], mutuallyExclusiveWith: ["port_convoy"] },
-    { id: "port_dry_dock", nameKey: "tech_tree.port.dry_dock", descKey: "tech_tree.port.dry_dock_desc", cost: 1_500_000, layer: 3, prerequisites: ["port_shipbuilding"], mutuallyExclusiveWith: ["port_repair_yard"] },
-    { id: "port_repair_yard", nameKey: "tech_tree.port.repair_yard", descKey: "tech_tree.port.repair_yard_desc", cost: 1_500_000, layer: 3, prerequisites: ["port_shipbuilding"], mutuallyExclusiveWith: ["port_dry_dock"] },
+    { id: "port_dry_dock", nameKey: "tech_tree.port.dry_dock", descKey: "tech_tree.port.dry_dock_desc", cost: 1_500_000, layer: 3, prerequisites: ["port_shipbuilding"], mutuallyExclusiveWith: ["port_turret"] },
+    { id: "port_turret", nameKey: "tech_tree.port.turret", descKey: "tech_tree.port.turret_desc", cost: 4_000_000, layer: 3, prerequisites: ["port_shipbuilding"], mutuallyExclusiveWith: ["port_dry_dock"] },
   ],
   defensepost: [
     { id: "defense_development", nameKey: "tech_tree.defense.development", descKey: "tech_tree.defense.development_desc", cost: 100_000, layer: 1, prerequisites: [], mutuallyExclusiveWith: [] },

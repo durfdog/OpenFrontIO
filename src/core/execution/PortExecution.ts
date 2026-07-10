@@ -1,7 +1,15 @@
 import { Execution, Game, Unit, UnitType } from "../game/Game";
 import { PseudoRandom } from "../PseudoRandom";
+import { ShellExecution } from "./ShellExecution";
 import { TradeShipExecution } from "./TradeShipExecution";
 import { TrainStationExecution } from "./TrainStationExecution";
+
+/** Unit types a port turret can fire at (same as the warship gun). */
+const TURRET_TARGET_TYPES = [
+  UnitType.TransportShip,
+  UnitType.Warship,
+  UnitType.TradeShip,
+];
 
 export class PortExecution implements Execution {
   private active = true;
@@ -10,6 +18,10 @@ export class PortExecution implements Execution {
   private random: PseudoRandom;
   private checkOffset: number;
   private tradeShipSpawnRejections = 0;
+
+  private turretTarget: Unit | null = null;
+  private lastShellAttack = 0;
+  private alreadySentShell = new Set<Unit>();
 
   constructor(port: Unit) {
     this.port = port;
@@ -34,6 +46,8 @@ export class PortExecution implements Execution {
     if (this.port.isUnderConstruction()) {
       return;
     }
+
+    this.tickTurret();
 
     if (!this.port.hasTrainStation()) {
       this.createStation();
@@ -148,5 +162,81 @@ export class PortExecution implements Execution {
       }
     }
     return weightedPorts;
+  }
+
+  private tickTurret(): void {
+    const owner = this.port.owner();
+    if (!owner.hasTech("port_turret")) return;
+
+    if (this.turretTarget === null || !this.turretTarget.isActive()) {
+      this.turretTarget = this.findTurretTarget();
+    }
+
+    if (this.turretTarget !== null) {
+      this.shootTurret(this.turretTarget);
+    }
+  }
+
+  private findTurretTarget(): Unit | null {
+    const owner = this.port.owner();
+    const candidates = this.mg.nearbyUnits(
+      this.port.tile(),
+      this.mg.config().portTurretRange(),
+      TURRET_TARGET_TYPES,
+    );
+
+    let best: Unit | null = null;
+    let bestTypePriority = Infinity;
+    let bestDistSquared = Infinity;
+
+    for (const { unit, distSquared } of candidates) {
+      if (unit === this.port) continue;
+      if (unit.owner() === owner) continue;
+      if (!owner.canAttackPlayer(unit.owner(), true)) continue;
+      if (this.alreadySentShell.has(unit)) continue;
+
+      // Prioritize TransportShip, then Warship, then TradeShip.
+      const typePriority =
+        unit.type() === UnitType.TransportShip
+          ? 0
+          : unit.type() === UnitType.Warship
+            ? 1
+            : 2;
+
+      if (
+        best === null ||
+        typePriority < bestTypePriority ||
+        (typePriority === bestTypePriority && distSquared < bestDistSquared)
+      ) {
+        best = unit;
+        bestTypePriority = typePriority;
+        bestDistSquared = distSquared;
+      }
+    }
+
+    return best;
+  }
+
+  private shootTurret(target: Unit): void {
+    const shellAttackRate = this.mg.config().portTurretShellAttackRate();
+    if (this.mg.ticks() - this.lastShellAttack > shellAttackRate) {
+      // Same as the warship gun: don't reload while firing at transport ships.
+      if (target.type() !== UnitType.TransportShip) {
+        this.lastShellAttack = this.mg.ticks();
+      }
+      this.mg.addExecution(
+        new ShellExecution(
+          this.port.tile(),
+          this.port.owner(),
+          this.port,
+          target,
+        ),
+      );
+      if (!target.hasHealth()) {
+        // Don't send multiple shells to a target that can be oneshotted.
+        this.alreadySentShell.add(target);
+        this.turretTarget = null;
+      }
+    }
   }
 }

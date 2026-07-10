@@ -1266,6 +1266,20 @@ export class Config {
     return 75;
   }
 
+  // --- Port turret (port_turret) ---
+  // A port with the port_turret upgrade fires shells at enemy boats and
+  // warships, using the same gun as a warship (see ShellExecution).
+
+  /** Tile radius (Euclidean) within which a port turret targets enemy ships. */
+  portTurretRange(): number {
+    return 50;
+  }
+
+  /** Shell-attack cooldown (ticks) for a port turret. Same as warship gun. */
+  portTurretShellAttackRate(): number {
+    return 20;
+  }
+
   allianceExtensionPromptOffset(): number {
     return 300; // 30 seconds before expiration
   }

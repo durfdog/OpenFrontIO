@@ -1498,8 +1498,8 @@
       "logistics_desc": "50% chance for each of your trade ships to be immune to piracy",
       "navigation": "Speedboats",
       "navigation_desc": "Your trade ships are twice as fast",
-      "repair_yard": "Fixer",
-      "repair_yard_desc": "Repair Yard",
+      "turret": "Turret",
+      "turret_desc": "Ports gain a turret that lets them fire at enemy boats and warships within 50 tiles. This turret is the same as the warship gun.",
       "shipbuilding": "Lighthouse",
       "shipbuilding_desc": "You and your allies' warships get +50% attack speed and +50% movement speed within 50 tiles of your ports."
     },
