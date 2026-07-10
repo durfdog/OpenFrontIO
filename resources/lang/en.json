@@ -1133,7 +1133,9 @@
     "target": "Target",
     "trading": "Trading",
     "traitor": "Traitor",
-    "troops": "Troops"
+    "troops": "Troops",
+    "upgrades": "Upgrades",
+    "upgrades_hint": "Hover an upgrade to see its description"
   },
   "player_stats_table": {
     "arrived": "Arrived",

@@ -32,6 +32,10 @@ import {
 } from "../../Transport";
 import { UIState } from "../../UIState";
 import {
+  getTechNode,
+  getTechTreeKey,
+} from "../../../core/tech/TechTreeData";
+import {
   renderDuration,
   renderNumber,
   renderTroops,
@@ -53,6 +57,31 @@ const targetIcon = assetUrl("images/TargetIconWhite.svg");
 const startTradingIcon = assetUrl("images/TradingIconWhite.png");
 const traitorIcon = assetUrl("images/TraitorIconLightRed.svg");
 const breakAllianceIcon = assetUrl("images/TraitorIconWhite.svg");
+
+const cityIcon = assetUrl("images/CityIconWhite.svg");
+const factoryIcon = assetUrl("images/FactoryIconWhite.svg");
+const portIcon = assetUrl("images/PortIcon.svg");
+const missileSiloIcon = assetUrl("images/MissileSiloIconWhite.svg");
+const samLauncherIcon = assetUrl("images/SamLauncherIconWhite.svg");
+const labIcon = assetUrl("images/BeakerIconWhite.svg");
+const warshipIcon = assetUrl("images/BattleshipIconWhite.svg");
+const atomBombIcon = assetUrl("images/NukeIconWhite.svg");
+const hydrogenBombIcon = assetUrl("images/MushroomCloudIconWhite.svg");
+const mirvIcon = assetUrl("images/MIRVIcon.svg");
+
+const TECH_TREE_ICONS: Record<string, string> = {
+  city: cityIcon,
+  factory: factoryIcon,
+  port: portIcon,
+  defensepost: shieldIcon,
+  missilesilo: missileSiloIcon,
+  samlauncher: samLauncherIcon,
+  lab: labIcon,
+  warship: warshipIcon,
+  atombomb: atomBombIcon,
+  hydrogenbomb: hydrogenBombIcon,
+  mirv: mirvIcon,
+};
 
 @customElement("player-panel")
 export class PlayerPanel extends LitElement implements Controller {
@@ -78,6 +107,8 @@ export class PlayerPanel extends LitElement implements Controller {
   // Whether this game is a publicly listed lobby. Kept out of
   // GameStartInfo (never touches records), so it's fetched from the worker.
   @state() private gameListed = false;
+  @state() private hoveredUpgrade: { title: string; desc: string } | null =
+    null;
 
   setRole(role: string | null): void {
     this.playerRole = role;
@@ -709,6 +740,81 @@ export class PlayerPanel extends LitElement implements Controller {
     `;
   }
 
+  private renderUpgrades(other: PlayerView) {
+    const purchased = other.state.purchasedTechs;
+
+    const techs = [...purchased].map((techId) => {
+      const node = getTechNode(techId);
+      const fullTitle = node ? translateText(node.nameKey) : techId;
+      const description = node ? translateText(node.descKey) : "";
+      const treeKey = getTechTreeKey(techId);
+      const iconSrc = treeKey ? TECH_TREE_ICONS[treeKey] : undefined;
+      return html`<span
+        class="inline-flex items-center px-1.5 h-6 rounded border border-blue-400/80 bg-blue-500/15 text-blue-200 text-xs font-semibold leading-none shadow-[0_0_0_1px_rgba(96,165,250,0.4)] cursor-default"
+        @mouseenter=${() => (this.hoveredUpgrade = { title: fullTitle, desc: description })}
+        @mouseleave=${() => (this.hoveredUpgrade = null)}
+        translate="no"
+      >
+        ${iconSrc
+          ? html`<img
+              src=${iconSrc}
+              class="w-3.5 h-3.5 mr-1 object-contain shrink-0"
+              alt=""
+            />`
+          : ""}
+        ${fullTitle}
+      </span>`;
+    });
+
+    return html`
+      <div class="select-none">
+        <div class="flex items-center justify-between mb-2">
+          <div id="upgrades-title" class="text-[15px] font-medium text-zinc-200">
+            ${translateText("player_panel.upgrades")}
+          </div>
+          <span
+            aria-labelledby="upgrades-title"
+            class="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-[10px]
+                 text-[12px] text-zinc-100 bg-white/10 border border-white/20"
+          >
+            ${purchased.size}
+          </span>
+        </div>
+
+        <div
+          class="rounded-lg bg-zinc-800/70 ring-1 ring-zinc-700/60 w-full min-w-0"
+        >
+          <div
+            class="max-h-30 overflow-y-auto p-2
+                 flex flex-wrap gap-2
+                 scrollbar-thin scrollbar-thumb-zinc-600 hover:scrollbar-thumb-zinc-500 scrollbar-track-zinc-800"
+            role="list"
+            aria-labelledby="upgrades-title"
+            translate="no"
+          >
+            ${techs.length === 0
+              ? html`<span class="text-zinc-400 text-[14px] px-1">
+                  ${translateText("common.none")}
+                </span>`
+              : techs}
+          </div>
+        </div>
+
+        <div
+          class="mt-2 min-h-[2.75rem] rounded-lg border border-blue-400/30 bg-blue-500/5 px-3 py-2 text-[12px] leading-snug text-zinc-300"
+        >
+          ${this.hoveredUpgrade
+            ? html`<span class="font-semibold text-blue-200"
+                  >${this.hoveredUpgrade.title}</span
+                ><span class="ml-1">${this.hoveredUpgrade.desc}</span>`
+            : html`<span class="text-zinc-500"
+                >${translateText("player_panel.upgrades_hint")}</span
+              >`}
+        </div>
+      </div>
+    `;
+  }
+
   private renderAllianceExpiry() {
     if (this.allianceExpiryText === null) return html``;
     return html`
@@ -1018,6 +1124,9 @@ export class PlayerPanel extends LitElement implements Controller {
 
                     <!-- Alliances list -->
                     ${this.renderAlliances(other)}
+
+                    <!-- Upgrades (purchased research techs) -->
+                    ${this.renderUpgrades(other)}
 
                     <!-- Alliance time remaining -->
                     ${this.renderAllianceExpiry()}
