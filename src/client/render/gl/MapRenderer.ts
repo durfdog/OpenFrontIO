@@ -189,8 +189,9 @@ export class MapRenderer {
   updateStructures(
     units: Map<number, UnitState>,
     urbanizationOwners?: ReadonlySet<number>,
+    players?: ReadonlyMap<number, PlayerState>,
   ): void {
-    this.renderer?.updateStructures(units, urbanizationOwners);
+    this.renderer?.updateStructures(units, urbanizationOwners, players);
   }
   applyDeadUnits(deadUnits: DeadUnitFx[]): void {
     this.renderer?.applyDeadUnits(deadUnits);

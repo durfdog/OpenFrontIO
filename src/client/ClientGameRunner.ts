@@ -483,6 +483,7 @@ function mountWebGLFrameLoop(
     view.updateStructures(
       frameData.units as Map<number, UnitState>,
       urbanizationOwners,
+      frameData.players,
     );
     view.uploadRailroadState(frameData.railroadState);
     view.updateRelations(frameData.relationMatrix, frameData.relationSize);
