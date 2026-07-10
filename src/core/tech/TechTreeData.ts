@@ -36,8 +36,8 @@ export const TECH_TREES: Record<string, TechNode[]> = {
     { id: "factory_tooling", nameKey: "tech_tree.factory.tooling", descKey: "tech_tree.factory.tooling_desc", cost: 600_000, layer: 2, prerequisites: ["factory_development"], mutuallyExclusiveWith: ["factory_mass_production"] },
     { id: "factory_assembly_line", nameKey: "tech_tree.factory.assembly_line", descKey: "tech_tree.factory.assembly_line_desc", cost: 1_500_000, layer: 3, prerequisites: ["factory_mass_production"], mutuallyExclusiveWith: ["factory_quality_control"] },
     { id: "factory_quality_control", nameKey: "tech_tree.factory.quality_control", descKey: "tech_tree.factory.quality_control_desc", cost: 1_500_000, layer: 3, prerequisites: ["factory_mass_production"], mutuallyExclusiveWith: ["factory_assembly_line"] },
-    { id: "factory_prototyping", nameKey: "tech_tree.factory.prototyping", descKey: "tech_tree.factory.prototyping_desc", cost: 1_500_000, layer: 3, prerequisites: ["factory_tooling"], mutuallyExclusiveWith: ["factory_material_science"] },
-    { id: "factory_material_science", nameKey: "tech_tree.factory.material_science", descKey: "tech_tree.factory.material_science_desc", cost: 1_500_000, layer: 3, prerequisites: ["factory_tooling"], mutuallyExclusiveWith: ["factory_prototyping"] },
+    { id: "factory_prototyping", nameKey: "tech_tree.factory.prototyping", descKey: "tech_tree.factory.prototyping_desc", cost: 1_500_000, layer: 3, prerequisites: ["factory_tooling"], mutuallyExclusiveWith: ["fortified_factories"] },
+    { id: "fortified_factories", nameKey: "tech_tree.factory.fortified_factories", descKey: "tech_tree.factory.fortified_factories_desc", cost: 1_500_000, layer: 3, prerequisites: ["factory_tooling"], mutuallyExclusiveWith: ["factory_prototyping"] },
   ],
   port: [
     { id: "port_development", nameKey: "tech_tree.port.development", descKey: "tech_tree.port.development_desc", cost: 200_000, layer: 1, prerequisites: [], mutuallyExclusiveWith: [] },

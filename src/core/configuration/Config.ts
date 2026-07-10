@@ -174,6 +174,10 @@ export class Config {
     return 50_000;
   }
 
+  factoryPopTechBonus(): number {
+    return 50_000;
+  }
+
   /** Delay in ticks before a city self-destructs after capture. 30 ticks = 3s @ 100ms/tick. */
   citySelfDestructDelay(): number {
     return 30;
@@ -196,6 +200,10 @@ export class Config {
 
   defensePostRange(): number {
     return 30;
+  }
+
+  fortifiedFactoryRange(): number {
+    return 60;
   }
 
   defensePostDefenseBonus(): number {
@@ -368,6 +376,16 @@ export class Config {
     const rejectionModifier = 1 / (tradeShipSpawnRejections + 1);
 
     return Math.floor((100 * rejectionModifier) / baseSpawnRate);
+  }
+
+  // Trade ship generation speed multiplier for owners of port_development.
+  portDevelopmentTradeShipBonus(): number {
+    return 1.2;
+  }
+
+  // Trade ship travel speed (tiles per tick) for owners of port_navigation.
+  tradeShipSpeed(player: Player | PlayerView): number {
+    return player.hasTech("port_navigation") ? 2 : 1;
   }
 
   unitInfo(type: UnitType): UnitInfo {
@@ -724,6 +742,22 @@ export class Config {
       default:
         throw new Error(`terrain type ${type} not supported`);
     }
+
+    // fortified_factories: attacking troops within range of a friendly
+    // factory ignore terrain penalties (normalize attacker loss to Plains).
+    if (
+      attacker.hasTech("fortified_factories") &&
+      gm
+        .nearbyUnits(
+          tileToConquer,
+          this.fortifiedFactoryRange(),
+          UnitType.Factory,
+        )
+        .some((f) => f.unit.owner() === attacker)
+    ) {
+      if (mag > 80) mag = 80;
+    }
+
     if (defender.isPlayer()) {
       for (const dp of gm.nearbyUnits(
         tileToConquer,
@@ -919,13 +953,19 @@ export class Config {
                 .map((lab) => lab.level())
                 .reduce((a, b) => a + b, 0) *
                 100000 +
-              ((player.hasTech("city_development") ? 1 : 0) +
-              (player.hasTech("city_militarization") ? 1 : 0) +
-              (player.hasTech("city_fortifications") ? 1 : 0)) *
-              player
-                .units(UnitType.City)
-                .filter((u) => !u.isUnderConstruction()).length *
-              this.cityPopTechBonus(),
+               ((player.hasTech("city_development") ? 1 : 0) +
+               (player.hasTech("city_militarization") ? 1 : 0) +
+               (player.hasTech("city_fortifications") ? 1 : 0)) *
+               player
+                 .units(UnitType.City)
+                 .filter((u) => !u.isUnderConstruction()).length *
+               this.cityPopTechBonus() +
+               (player.hasTech("factory_prototyping") ? 1 : 0) *
+               player
+                 .units(UnitType.Factory)
+                 .filter((u) => !u.isUnderConstruction())
+                 .reduce((a, u) => a + u.level(), 0) *
+               this.factoryPopTechBonus(),
           );
 
     if (player.type() === PlayerType.Bot) {

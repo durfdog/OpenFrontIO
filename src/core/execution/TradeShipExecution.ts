@@ -12,6 +12,22 @@ import { WaterPathFinder } from "../pathfinding/PathFinder";
 import { PathStatus } from "../pathfinding/types";
 import { findClosestBy } from "../Util";
 
+// Returns a path covering the same route but with one entry every `speed`
+// tiles, so a client whose motion plan advances 1 entry/tick renders a unit
+// moving `speed` tiles/tick (motion-plan ticksPerStep is integer-only).
+function downsamplePath(path: readonly TileRef[], speed: number): TileRef[] {
+  if (speed <= 1) return path as TileRef[];
+  const out: TileRef[] = [];
+  for (let i = 0; i < path.length; i += speed) {
+    out.push(path[i]);
+  }
+  const last = path[path.length - 1];
+  if (out[out.length - 1] !== last) {
+    out.push(last);
+  }
+  return out;
+}
+
 export class TradeShipExecution implements Execution {
   private active = true;
   private mg: Game;
@@ -125,51 +141,72 @@ export class TradeShipExecution implements Execution {
       }
     }
 
+    // port_navigation makes the owner's trade ships travel twice as fast,
+    // i.e. advance two tiles per tick.
+    const speed = this.mg.config().tradeShipSpeed(this.tradeShip.owner());
+    for (let step = 0; step < speed; step++) {
+      if (this.stepTradeShip(ticks + step)) {
+        return;
+      }
+    }
+  }
+
+  private stepTradeShip(ticks: number): boolean {
+    const ship = this.tradeShip;
+    if (ship === undefined || !ship.isActive()) {
+      this.active = false;
+      return true;
+    }
+
+    const curTile = ship.tile();
     if (curTile === this.dstPort()) {
       this.complete();
-      return;
+      return true;
     }
 
     const dst = this._dstPort.tile();
     const result = this.pathFinder.next(curTile, dst);
 
     switch (result.status) {
-      case PathStatus.NEXT:
+      case PathStatus.NEXT: {
         if (dst !== this.motionPlanDst) {
           this.motionPlanId++;
           const from = result.node;
-          const path = this.pathFinder.findPath(from, dst) ?? [from];
-          if (path.length === 0 || path[0] !== from) {
-            path.unshift(from);
+          const full = this.pathFinder.findPath(from, dst) ?? [from];
+          if (full.length === 0 || full[0] !== from) {
+            full.unshift(from);
           }
-
+          // Downsample the plan path so the client renders at the same
+          // tiles/tick as the simulation (motion-plan ticksPerStep is integer).
+          const speed = this.mg.config().tradeShipSpeed(ship.owner());
           this.mg.recordMotionPlan({
             kind: "grid",
-            unitId: this.tradeShip.id(),
+            unitId: ship.id(),
             planId: this.motionPlanId,
             startTick: ticks + 1,
             ticksPerStep: 1,
-            path,
+            path: downsamplePath(full, speed),
           });
           this.motionPlanDst = dst;
         }
         // Update safeFromPirates status
         if (this.mg.isWater(result.node) && this.mg.isShoreline(result.node)) {
-          this.tradeShip.setSafeFromPirates();
+          ship.setSafeFromPirates();
         }
-        this.tradeShip.move(result.node);
+        ship.move(result.node);
         this.tilesTraveled++;
-        break;
+        return false;
+      }
       case PathStatus.COMPLETE:
         this.complete();
-        return;
+        return true;
       case PathStatus.NOT_FOUND:
         console.warn("captured trade ship cannot find route");
-        if (this.tradeShip.isActive()) {
-          this.tradeShip.delete(false);
+        if (ship.isActive()) {
+          ship.delete(false);
         }
         this.active = false;
-        return;
+        return true;
     }
   }
 

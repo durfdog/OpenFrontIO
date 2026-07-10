@@ -73,8 +73,16 @@ export class PortExecution implements Execution {
     const spawnRate = this.mg
       .config()
       .tradeShipSpawnRate(this.tradeShipSpawnRejections, numTradeShips);
+    // port_development increases trade ship generation speed by 20%, which
+    // lowers the spawn odds (probability = 1 / odds) by the same factor.
+    const bonus = this.port
+      .owner()
+      .hasTech("port_development")
+      ? this.mg.config().portDevelopmentTradeShipBonus()
+      : 1;
+    const effectiveRate = spawnRate / bonus;
     for (let i = 0; i < this.port!.level(); i++) {
-      if (this.random.chance(spawnRate)) {
+      if (this.random.chance(effectiveRate)) {
         this.tradeShipSpawnRejections = 0;
         return true;
       }
