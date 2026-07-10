@@ -304,7 +304,7 @@ export class PlayerInfoOverlay extends LitElement implements Controller {
     const playerTeam = getTranslatedPlayerTeamLabel(player.team());
 
     return html`
-      <div class="flex flex-col gap-1 p-1 lg:p-1.5 w-fit mx-auto">
+      <div class="flex flex-col items-center gap-1 p-1 lg:p-1.5">
         <div class="flex items-start gap-1 lg:gap-2">
         <!-- Left: Gold, Research & Troop bar -->
         <div class="flex flex-col gap-1 shrink-0">
@@ -424,7 +424,7 @@ export class PlayerInfoOverlay extends LitElement implements Controller {
       </span>`;
     });
 
-    return html`<div class="flex flex-wrap justify-center gap-1.5 px-1.5 lg:px-1.5 pb-1 mt-1 w-fit mx-auto max-w-[480px]">
+    return html`<div class="flex flex-wrap justify-center gap-1.5 px-1.5 pb-1 mt-1 w-fit max-w-[480px]">
       ${tags}
     </div>`;
   }
@@ -527,7 +527,7 @@ export class PlayerInfoOverlay extends LitElement implements Controller {
         @contextmenu=${(e: MouseEvent) => e.preventDefault()}
       >
         <div
-          class="bg-gray-800/92 backdrop-blur-sm shadow-xs min-[1200px]:rounded-lg sm:rounded-b-lg shadow-lg text-white text-lg lg:text-base w-full sm:w-[500px] overflow-hidden ${containerClasses}"
+          class="bg-gray-800/92 backdrop-blur-sm shadow-xs min-[1200px]:rounded-lg sm:rounded-b-lg shadow-lg text-white text-lg lg:text-base w-fit sm:max-w-[500px] mx-auto overflow-hidden ${containerClasses}"
         >
           <div class="flex justify-center">
             ${this.player !== null ? this.renderPlayerInfo(this.player) : ""}
