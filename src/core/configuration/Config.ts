@@ -199,10 +199,6 @@ export class Config {
     return 90;
   }
 
-  defensePostRange(): number {
-    return 30;
-  }
-
   fortifiedFactoryRange(): number {
     return 60;
   }
@@ -493,10 +489,14 @@ export class Config {
         break;
       case UnitType.DefensePost:
         info = {
-          cost: this.costWrapper(
-            (numUnits: number) => Math.min(250_000, (numUnits + 1) * 50_000),
-            UnitType.DefensePost,
-          ),
+          cost: (game, player) =>
+            this.defensePostIsFree(player)
+              ? 0n
+              : this.costWrapper(
+                  (numUnits: number) =>
+                    Math.min(250_000, (numUnits + 1) * 50_000),
+                  UnitType.DefensePost,
+                )(game, player),
           constructionDuration: this.instantBuild() ? 0 : 5 * 10,
         };
         break;
@@ -741,6 +741,7 @@ export class Config {
   } {
     let mag;
     let speed;
+    let nearDefensePost = false;
     const type = gm.terrainType(tileToConquer);
     switch (type) {
       case TerrainType.Plains:
@@ -776,23 +777,28 @@ export class Config {
       if (mag > 80) mag = 80;
     }
 
-    if (defender.isPlayer()) {
-      for (const dp of gm.nearbyUnits(
-        tileToConquer,
-        gm.config().defensePostRange(),
-        UnitType.DefensePost,
-      )) {
-        if (dp.unit.owner() === defender) {
-          mag *= this.defensePostDefenseBonus();
-          speed *= this.defensePostSpeedBonus();
-          break;
+      if (defender.isPlayer()) {
+        for (const dp of gm.nearbyUnits(
+          tileToConquer,
+          gm.config().defensePostRange(defender),
+          UnitType.DefensePost,
+        )) {
+          if (dp.unit.owner() === defender) {
+            mag *= this.defensePostDefenseBonus();
+            speed *= this.defensePostSpeedBonus();
+            nearDefensePost = true;
+            break;
+          }
         }
+      if (nearDefensePost) {
+        speed *= this.machineGunFireSpeedMultiplier(defender);
       }
+
       // city_urbanization: cities grant the same defensive bonus as defense posts.
       if (defender.hasTech("city_urbanization")) {
         for (const city of gm.nearbyUnits(
           tileToConquer,
-          gm.config().defensePostRange(),
+          gm.config().defensePostRange(defender),
           UnitType.City,
         )) {
           if (
@@ -859,8 +865,12 @@ export class Config {
         traitorMod;
       const altAttackerLoss =
         1.3 * defenderTroopLoss * (mag / 100) * traitorMod;
-      const attackerTroopLoss =
+      let attackerTroopLoss =
         0.6 * currentAttackerLoss + 0.4 * altAttackerLoss;
+
+      if (nearDefensePost) {
+        attackerTroopLoss *= this.minefieldAttackerLossMultiplier(defender);
+      }
 
       return {
         attackerTroopLoss,
@@ -978,13 +988,14 @@ export class Config {
                  .units(UnitType.City)
                  .filter((u) => !u.isUnderConstruction()).length *
                this.cityPopTechBonus() +
-               (player.hasTech("factory_prototyping") ? 1 : 0) *
-               player
-                 .units(UnitType.Factory)
-                 .filter((u) => !u.isUnderConstruction())
-                 .reduce((a, u) => a + u.level(), 0) *
-               this.factoryPopTechBonus(),
-          );
+                (player.hasTech("factory_prototyping") ? 1 : 0) *
+                player
+                  .units(UnitType.Factory)
+                  .filter((u) => !u.isUnderConstruction())
+                  .reduce((a, u) => a + u.level(), 0) *
+                this.factoryPopTechBonus() +
+                this.permanentDefendersPopBonus(player),
+           );
 
     if (player.type() === PlayerType.Bot) {
       return maxTroops / 3;
@@ -1262,8 +1273,52 @@ export class Config {
     return 20;
   }
 
-  defensePostTargettingRange(): number {
-    return 75;
+  defensePostRange(player?: Player | PlayerView | TerraNullius): number {
+    return 30 * this.defensePostRadiusMultiplier(player);
+  }
+
+  defensePostTargettingRange(
+    player?: Player | PlayerView | TerraNullius,
+  ): number {
+    return 75 * this.defensePostRadiusMultiplier(player);
+  }
+
+  // --- Defense post tech-tree hooks (implemented per-node by subagents) ---
+  // These return their default (no-op) values here; individual tech-tree
+  // upgrades override the return value when the owning player has the tech.
+
+  /** Snipers (defense_radar): defense post radius multiplier. Default 1. */
+  defensePostRadiusMultiplier(
+    player?: Player | PlayerView | TerraNullius,
+  ): number {
+    return 1;
+  }
+
+  /** Forced Labor (defense_bunker): defense posts cost no gold. Default false. */
+  defensePostIsFree(player: Player | PlayerView): boolean {
+    return false;
+  }
+
+  /** Minefield (defense_development): extra attacker-troop-loss multiplier
+   *  when the defender has a defense post in range. Default 1. */
+  minefieldAttackerLossMultiplier(
+    defender: Player | PlayerView | TerraNullius,
+  ): number {
+    return 1;
+  }
+
+  /** Machine Gun Fire (defense_watchtower): attacker advance-speed multiplier
+   *  when the defender has a defense post in range. Default 1. */
+  machineGunFireSpeedMultiplier(
+    defender: Player | PlayerView | TerraNullius,
+  ): number {
+    return 1;
+  }
+
+  /** Permanent Defenders (defense_militia): bonus max population from defense
+   *  posts. Default 0. */
+  permanentDefendersPopBonus(player: Player | PlayerView): number {
+    return 0;
   }
 
   // --- Port turret (port_turret) ---
