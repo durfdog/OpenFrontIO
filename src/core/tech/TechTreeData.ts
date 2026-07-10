@@ -133,3 +133,11 @@ export function getTechNode(techId: string): TechNode | undefined {
   }
   return undefined;
 }
+
+/** Returns the tech-tree key (e.g. "city", "factory") that a node belongs to. */
+export function getTechTreeKey(techId: string): string | undefined {
+  for (const [key, tree] of Object.entries(TECH_TREES)) {
+    if (tree.some((n) => n.id === techId)) return key;
+  }
+  return undefined;
+}

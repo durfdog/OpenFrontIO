@@ -18,7 +18,10 @@ import {
   TouchEvent,
 } from "../../InputHandler";
 import { themeProvider } from "../../theme/ThemeProvider";
-import { getTechNode } from "../../../core/tech/TechTreeData";
+import {
+  getTechNode,
+  getTechTreeKey,
+} from "../../../core/tech/TechTreeData";
 import { TransformHandler } from "../../TransformHandler";
 import {
   getTranslatedPlayerTeamLabel,
@@ -49,6 +52,24 @@ const missileSiloIcon = assetUrl("images/MissileSiloIconWhite.svg");
 const portIcon = assetUrl("images/PortIcon.svg");
 const samLauncherIcon = assetUrl("images/SamLauncherIconWhite.svg");
 const soldierIcon = assetUrl("images/SoldierIcon.svg");
+const shieldIcon = assetUrl("images/ShieldIconWhite.svg");
+const atomBombIcon = assetUrl("images/NukeIconWhite.svg");
+const hydrogenBombIcon = assetUrl("images/MushroomCloudIconWhite.svg");
+const mirvIcon = assetUrl("images/MIRVIcon.svg");
+
+const TECH_TREE_ICONS: Record<string, string> = {
+  city: cityIcon,
+  factory: factoryIcon,
+  port: portIcon,
+  defensepost: shieldIcon,
+  missilesilo: missileSiloIcon,
+  samlauncher: samLauncherIcon,
+  lab: labIcon,
+  warship: warshipIcon,
+  atombomb: atomBombIcon,
+  hydrogenbomb: hydrogenBombIcon,
+  mirv: mirvIcon,
+};
 
 function euclideanDistWorld(
   coord: { x: number; y: number },
@@ -416,10 +437,19 @@ export class PlayerInfoOverlay extends LitElement implements Controller {
     const tags = [...purchased].map((techId) => {
       const node = getTechNode(techId);
       const fullTitle = node ? translateText(node.nameKey) : techId;
+      const treeKey = getTechTreeKey(techId);
+      const iconSrc = treeKey ? TECH_TREE_ICONS[treeKey] : undefined;
       return html`<span
         class="inline-flex items-center px-1.5 h-6 rounded border border-blue-400/80 bg-blue-500/15 text-blue-200 text-xs font-semibold leading-none shadow-[0_0_0_1px_rgba(96,165,250,0.4)]"
         translate="no"
       >
+        ${iconSrc
+          ? html`<img
+              src=${iconSrc}
+              class="w-3.5 h-3.5 mr-1 object-contain shrink-0"
+              alt=""
+            />`
+          : ""}
         ${fullTitle}
       </span>`;
     });
