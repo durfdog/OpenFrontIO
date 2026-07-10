@@ -3,9 +3,25 @@ import { customElement, property, state } from "lit/decorators.js";
 import { assetUrl } from "../../../core/AssetUrls";
 import { EventBus } from "../../../core/EventBus";
 import { getTechTree, TechNode } from "../../../core/tech/TechTreeData";
+import { UserSettings } from "../../../core/game/UserSettings";
+import { Platform } from "../../Platform";
 import { GameView } from "../../view";
 import { renderNumber, translateText } from "../../Utils";
 import { SendPurchaseTechIntentEvent } from "../../Transport";
+
+const SLUG_TO_BUILD_KEY: Record<string, string> = {
+  city: "buildCity",
+  factory: "buildFactory",
+  port: "buildPort",
+  defensepost: "buildDefensePost",
+  missilesilo: "buildMissileSilo",
+  samlauncher: "buildSamLauncher",
+  warship: "buildWarship",
+  atombomb: "buildAtomBomb",
+  hydrogenbomb: "buildHydrogenBomb",
+  mirv: "buildMIRV",
+  lab: "buildLab",
+};
 
 const cityIcon = assetUrl("images/CityIconWhite.svg");
 const factoryIcon = assetUrl("images/FactoryIconWhite.svg");
@@ -47,8 +63,10 @@ export class TechTreeOverlay extends LitElement {
   @state() private selectedStructure: string = "city";
   @state() private selectedNodeId: string | null = null;
   @state() private pendingTechs = new Set<string>();
+  @state() private showTip = true;
 
   private pollTimer: ReturnType<typeof setInterval> | null = null;
+  private keybinds: Record<string, string> = {};
 
   constructor() {
     super();
@@ -118,13 +136,34 @@ export class TechTreeOverlay extends LitElement {
       } else {
         this.close();
       }
+      return;
+    }
+    if (!this.isVisible) return;
+    const slug = this.slugForBuildKey(e.code);
+    if (slug) {
+      this.selectStructure(slug);
     }
   };
+
+  private keybindForSlug(slug: string): string {
+    const code = this.keybinds[SLUG_TO_BUILD_KEY[slug]];
+    return code
+      ? code.replace("Digit", "").replace("Key", "").replace("Backquote", "`").toUpperCase()
+      : "";
+  }
+
+  private slugForBuildKey(code: string): string | null {
+    for (const [slug, action] of Object.entries(SLUG_TO_BUILD_KEY)) {
+      if (this.keybinds[action] === code) return slug;
+    }
+    return null;
+  }
 
   private wheelEl: HTMLElement | null = null;
 
   connectedCallback() {
     super.connectedCallback();
+    this.keybinds = new UserSettings().keybinds(Platform.isMac);
     document.addEventListener("keydown", this.handleKeyDown);
   }
 
@@ -287,7 +326,7 @@ export class TechTreeOverlay extends LitElement {
           class="bg-gray-900/80 border border-white/10 rounded-2xl p-5 w-[95vw] max-w-[1200px] max-h-[92vh] shadow-2xl flex flex-col overflow-y-auto tech-tree-scroll"
           @click=${(e: MouseEvent) => e.stopPropagation()}
         >
-          <!-- Header row: title + research widget -->
+          <!-- Header row: title + research widget + close -->
           <div class="flex items-center justify-between mb-3 shrink-0">
             <div class="flex items-center gap-2">
               <img src=${ICON_MAP[this.selectedStructure]} alt="" class="size-7" />
@@ -295,9 +334,18 @@ export class TechTreeOverlay extends LitElement {
                 ${translateText("tech_tree.title")}
               </h2>
             </div>
-            <div class="flex items-center gap-1.5">
-              <img src=${labIcon} width="16" height="16" class="shrink-0" />
-              <span class="text-cyan-300 font-bold tabular-nums text-base">${renderNumber(this.research)}</span>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1.5">
+                <img src=${labIcon} width="16" height="16" class="shrink-0" />
+                <span class="text-cyan-300 font-bold tabular-nums text-base">${renderNumber(this.research)}</span>
+              </div>
+              <button
+                class="shrink-0 flex items-center justify-center size-7 rounded-md border border-white/10 bg-gray-800 hover:bg-gray-700 text-white text-lg leading-none transition-colors"
+                title=${translateText("common.close")}
+                @click=${this.close}
+              >
+                &times;
+              </button>
             </div>
           </div>
 
@@ -306,7 +354,7 @@ export class TechTreeOverlay extends LitElement {
             ${STRUCTURE_SLUGS.map(
               (slug) => html`
                 <button
-                  class="flex items-center justify-center p-2 rounded-xl transition-colors ${
+                  class="relative flex items-center justify-center p-2 rounded-md transition-colors ${
                     this.selectedStructure === slug
                       ? "bg-malibu-blue/20 border-2 border-malibu-blue/50"
                       : "bg-gray-800 border-2 border-transparent hover:bg-gray-700"
@@ -314,11 +362,34 @@ export class TechTreeOverlay extends LitElement {
                   title=${translateText(`structures.${slug}`)}
                   @click=${() => this.selectStructure(slug)}
                 >
+                  <span
+                    class="absolute top-0 left-0.5 text-[9px] leading-none text-gray-400 pointer-events-none"
+                    >${this.keybindForSlug(slug)}</span
+                  >
                   <img src=${ICON_MAP[slug]} alt="" class="size-7" />
                 </button>
               `,
             )}
           </div>
+
+          ${this.showTip
+            ? html`
+                <div
+                  class="flex items-center justify-between gap-3 mb-3 shrink-0 rounded-md border border-white/10 bg-cyan-500/10 px-3 py-1.5 text-sm text-cyan-200"
+                >
+                  <span>${translateText("tech_tree.double_click_tip")}</span>
+                  <button
+                    class="shrink-0 text-cyan-200/70 hover:text-cyan-100 text-sm leading-none"
+                    @click=${() => {
+                      this.showTip = false;
+                      this.requestUpdate();
+                    }}
+                  >
+                    &times;
+                  </button>
+                </div>
+              `
+            : ""}
 
           <!-- Tree area (relative container for SVG connectors) -->
           <div class="tech-tree-area relative grow py-6">
@@ -353,73 +424,7 @@ export class TechTreeOverlay extends LitElement {
               )}
             </div>
           </div>
-
-          <!-- Selected node description card -->
-          ${this.renderDescriptionCard(tree)}
-
-          <!-- Close -->
-          <div class="flex justify-center mt-3 shrink-0">
-            <button
-              class="px-5 py-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded-lg transition-colors border border-white/10"
-              @click=${this.close}
-            >
-              ${translateText("common.close")}
-            </button>
-          </div>
         </div>
-      </div>
-    `;
-  }
-
-  private renderDescriptionCard(tree: TechNode[]) {
-    if (!this.selectedNodeId) return html``;
-
-    const node = tree.find((n) => n.id === this.selectedNodeId);
-    if (!node) return html``;
-
-    const state = this.nodeState(node);
-    const isPurchased = state === "purchased";
-    const isLocked = state === "locked";
-    const canInteract = !isPurchased && !isLocked && state !== "unaffordable";
-
-    return html`
-      <div
-        class="mt-3 border border-white/10 rounded-xl bg-gray-800/60 p-4 flex items-start gap-4 shrink-0"
-      >
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-sm font-bold text-white uppercase tracking-wider">
-              ${translateText(node.nameKey)}
-            </span>
-          </div>
-          <p class="text-sm text-gray-300 leading-relaxed">
-            ${translateText(node.descKey)}
-          </p>
-          <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
-            <span class="font-bold">${translateText("tech_tree.cost")}: ${node.cost.toLocaleString()}</span>
-            ${isPurchased
-              ? html`<span class="text-green-400 font-bold">&#10003;</span>`
-              : isLocked
-                ? html`<span class="text-red-400 font-bold">&#128274;</span>`
-                : ""}
-          </div>
-        </div>
-        ${!isPurchased && canInteract
-          ? html`
-              <button
-                class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold rounded-lg transition-colors shrink-0"
-                @click=${(e: MouseEvent) => {
-                  e.stopPropagation();
-                  this.eventBus?.emit(new SendPurchaseTechIntentEvent(node.id));
-                  this.pendingTechs.add(node.id);
-                  this.selectedNodeId = null;
-                  this.requestUpdate();
-                }}
-              >
-                Purchase
-              </button>
-            `
-          : ""}
       </div>
     `;
   }

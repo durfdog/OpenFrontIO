@@ -1366,6 +1366,7 @@
     "yellow": "Yellow"
   },
   "tech_tree": {
+    "double_click_tip": "Double click upgrade to purchase. Use structure keybinds or scrolling for quick navigation. Press escape or your research overlay keybind to exit.",
     "atombomb": {
       "delivery": "Delivery",
       "delivery_desc": "Delivery.",
