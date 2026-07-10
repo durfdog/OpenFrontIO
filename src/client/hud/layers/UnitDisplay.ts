@@ -75,11 +75,15 @@ export class UnitDisplay extends LitElement implements Controller {
     switch (item) {
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
-      case UnitType.MIRV:
-        return (
-          this.cost(item) <= (player?.gold() ?? 0n) &&
-          (player?.units(UnitType.MissileSilo).length ?? 0) > 0
-        );
+      case UnitType.MIRV: {
+        const p = player;
+        if (p === null) return false;
+        const hasSilo = p.units(UnitType.MissileSilo).length > 0;
+        const hasMadPost =
+          p.hasTech("defense_flare") &&
+          p.units(UnitType.DefensePost).some((u) => !u.isUnderConstruction());
+        return this.cost(item) <= p.gold() && (hasSilo || hasMadPost);
+      }
       case UnitType.Warship:
         return (
           this.cost(item) <= (player?.gold() ?? 0n) &&
