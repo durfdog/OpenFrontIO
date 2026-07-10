@@ -263,50 +263,60 @@ export class TechTreeOverlay extends LitElement {
 
     const treeRect = treeEl.getBoundingClientRect();
     const tree = getTechTree(this.selectedStructure);
-    const l1 = tree.filter((n) => n.layer === 1);
     const l2 = tree.filter((n) => n.layer === 2);
     const l3 = tree.filter((n) => n.layer === 3);
 
+    // Anchor connectors to the layer container edges rather than individual
+    // node boxes. Node heights vary with description length, which would
+    // otherwise make sibling connectors start/end at different vertical
+    // positions and leave floating gaps.
+    const layerEl = (layer: number) =>
+      this.querySelector(`[data-layer="${layer}"]`) as HTMLElement | null;
+    const layerBottom = (layer: number): number | null => {
+      const el = layerEl(layer);
+      return el === null ? null : el.getBoundingClientRect().bottom - treeRect.top;
+    };
+    const layerTop = (layer: number): number | null => {
+      const el = layerEl(layer);
+      return el === null ? null : el.getBoundingClientRect().top - treeRect.top;
+    };
+
     const paths: string[] = [];
 
-    const addPaths = (parents: TechNode[], children: TechNode[]) => {
+    const addPaths = (
+      children: TechNode[],
+      parentLayer: number,
+      childLayer: number,
+    ) => {
+      const y1 = layerBottom(parentLayer);
+      const y2 = layerTop(childLayer);
+      if (y1 === null || y2 === null) return;
       for (const child of children) {
         const parentId = child.prerequisites[0];
         if (!parentId) continue;
-        const path = this.computeConnector(parentId, child.id, treeRect);
-        if (path) paths.push(path);
+        const pEl = this.querySelector(
+          `[data-node-id="${parentId}"]`,
+        ) as HTMLElement | null;
+        const cEl = this.querySelector(
+          `[data-node-id="${child.id}"]`,
+        ) as HTMLElement | null;
+        if (!pEl || !cEl) continue;
+
+        const pRect = pEl.getBoundingClientRect();
+        const cRect = cEl.getBoundingClientRect();
+        const x1 = pRect.left + pRect.width / 2 - treeRect.left;
+        const x2 = cRect.left + cRect.width / 2 - treeRect.left;
+        const midY = (y1 + y2) / 2;
+        paths.push(
+          `<path d="M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>`,
+        );
       }
     };
 
-    addPaths(l1, l2);
-    addPaths(l2, l3);
+    addPaths(l2, 1, 2);
+    addPaths(l3, 2, 3);
 
     svg.innerHTML = paths.join("");
-  }
-
-  private computeConnector(
-    parentId: string,
-    childId: string,
-    containerRect: DOMRect,
-  ): string | null {
-    const pEl = this.querySelector(
-      `[data-node-id="${parentId}"]`,
-    ) as HTMLElement | null;
-    const cEl = this.querySelector(
-      `[data-node-id="${childId}"]`,
-    ) as HTMLElement | null;
-    if (!pEl || !cEl) return null;
-
-    const pRect = pEl.getBoundingClientRect();
-    const cRect = cEl.getBoundingClientRect();
-
-    const x1 = pRect.left + pRect.width / 2 - containerRect.left;
-    const y1 = pRect.bottom - containerRect.top;
-    const x2 = cRect.left + cRect.width / 2 - containerRect.left;
-    const y2 = cRect.top - containerRect.top;
-
-    const midY = (y1 + y2) / 2;
-    return `<path d="M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>`;
   }
 
   render() {
@@ -396,14 +406,14 @@ export class TechTreeOverlay extends LitElement {
             <svg class="connector-svg absolute inset-0 w-full h-full pointer-events-none z-0"></svg>
 
             <!-- Layer 1: 1 node -->
-            <div class="flex justify-center mb-14 relative z-10">
+            <div class="flex justify-center mb-14 relative z-10" data-layer="1">
               <div class="w-full max-w-[220px]" data-node-id=${l1[0]?.id ?? ""}>
                 ${l1.map((n) => this.renderNode(n))}
               </div>
             </div>
 
             <!-- Layer 2: 2 nodes -->
-            <div class="flex justify-center gap-10 mb-14 relative z-10">
+            <div class="flex justify-center gap-10 mb-14 relative z-10" data-layer="2">
               ${l2.map(
                 (n) => html`
                   <div class="flex-1 max-w-[200px]" data-node-id=${n.id}>
@@ -414,7 +424,7 @@ export class TechTreeOverlay extends LitElement {
             </div>
 
             <!-- Layer 3: 4 nodes -->
-            <div class="flex justify-center gap-4 relative z-10">
+            <div class="flex justify-center gap-4 relative z-10" data-layer="3">
               ${l3.map(
                 (n) => html`
                   <div class="flex-1 max-w-[180px]" data-node-id=${n.id}>
@@ -445,7 +455,7 @@ export class TechTreeOverlay extends LitElement {
 
     return html`
       <div
-        class="rounded-lg border ${borderCls} ${cursorCls} p-3 flex flex-col gap-1.5 transition-colors duration-150 text-center ${
+        class="rounded-lg border ${borderCls} ${cursorCls} p-3 flex flex-col gap-1.5 transition-colors duration-150 text-center h-full justify-center ${
           !isPurchased && canInteract ? "hover:border-white/30" : ""
         }"
         @click=${(e: MouseEvent) =>
