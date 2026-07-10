@@ -25,6 +25,9 @@ export class WarshipExecution implements Execution {
   private lastObservedPatrolTile: TileRef | undefined;
   private activeHealingRemainder = 0;
   private lastEmittedCombat = false;
+  // Fractional remainder for the Lighthouse movement-speed buff (tiles/tick
+  // increments by <1 per tick), accumulated so average speed matches the bonus.
+  private movementRemainder = 0;
 
   constructor(
     private input: (UnitParams<UnitType.Warship> & OwnerComp) | Unit,
@@ -616,7 +619,10 @@ export class WarshipExecution implements Execution {
 
   private shootTarget() {
     this.warship.updateWarshipState({ isInCombat: true });
-    const shellAttackRate = this.mg.config().warshipShellAttackRate();
+    // Lighthouse (port_shipbuilding) grants +50% attack speed near allied ports.
+    const shellAttackRate = this.mg
+      .config()
+      .warshipShellAttackRateFor(this.mg, this.warship);
     if (this.mg.ticks() - this.lastShellAttack > shellAttackRate) {
       if (this.warship.targetUnit()?.type() !== UnitType.TransportShip) {
         // Warships don't need to reload when attacking transport ships.
@@ -705,10 +711,26 @@ export class WarshipExecution implements Execution {
       }
     }
 
-    const result = this.pathfinder.next(
-      this.warship.tile(),
-      this.warship.targetTile()!,
-    );
+    // Lighthouse (port_shipbuilding): +50% movement speed near allied ports.
+    // Move one tile per tick plus a fractional remainder accumulated over time.
+    const speed = this.mg.config().warshipMoveSpeedFor(this.mg, this.warship);
+    this.movementRemainder += speed - 1;
+    this.moveWarshipStep();
+    while (this.movementRemainder >= 1) {
+      this.movementRemainder -= 1;
+      if (this.warship.targetTile() === undefined) {
+        break;
+      }
+      this.moveWarshipStep();
+    }
+  }
+
+  private moveWarshipStep(): void {
+    const target = this.warship.targetTile();
+    if (target === undefined) {
+      return;
+    }
+    const result = this.pathfinder.next(this.warship.tile(), target);
     switch (result.status) {
       case PathStatus.COMPLETE:
         this.warship.setTargetTile(undefined);
@@ -718,7 +740,6 @@ export class WarshipExecution implements Execution {
         this.warship.move(result.node);
         break;
       case PathStatus.NOT_FOUND: {
-        console.log(`path not found to target`);
         this.warship.setTargetTile(undefined);
         break;
       }
