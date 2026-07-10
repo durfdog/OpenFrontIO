@@ -304,7 +304,7 @@ export class PlayerInfoOverlay extends LitElement implements Controller {
     const playerTeam = getTranslatedPlayerTeamLabel(player.team());
 
     return html`
-      <div class="flex flex-col gap-1 p-1 lg:p-1.5">
+      <div class="flex flex-col gap-1 p-1 lg:p-1.5 w-fit mx-auto">
         <div class="flex items-start gap-1 lg:gap-2">
         <!-- Left: Gold, Research & Troop bar -->
         <div class="flex flex-col gap-1 shrink-0">
@@ -417,14 +417,14 @@ export class PlayerInfoOverlay extends LitElement implements Controller {
       const node = getTechNode(techId);
       const fullTitle = node ? translateText(node.nameKey) : techId;
       return html`<span
-        class="inline-flex items-center px-1.5 h-6 rounded border border-gray-500 bg-gray-700/70 text-xs font-semibold leading-none"
+        class="inline-flex items-center px-1.5 h-6 rounded border border-blue-400/80 bg-blue-500/15 text-blue-200 text-xs font-semibold leading-none shadow-[0_0_0_1px_rgba(96,165,250,0.4)]"
         translate="no"
       >
         ${fullTitle}
       </span>`;
     });
 
-    return html`<div class="flex flex-wrap gap-1 px-1 lg:px-1.5 pb-1 mt-0.5">
+    return html`<div class="flex flex-wrap justify-center gap-1.5 px-1.5 lg:px-1.5 pb-1 mt-1 w-fit mx-auto max-w-[480px]">
       ${tags}
     </div>`;
   }
