@@ -985,6 +985,14 @@ export class Config {
       toAdd *= 1.1;
     }
 
+    if (player.hasTech("factory_tooling")) {
+      let factories = 0;
+      for (const u of player.units(UnitType.Factory)) {
+        if (!u.isUnderConstruction()) factories += u.level();
+      }
+      toAdd *= 1 + 0.001 * factories;
+    }
+
     return Math.min(player.troops() + toAdd, max) - player.troops();
   }
 

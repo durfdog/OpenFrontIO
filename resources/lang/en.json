@@ -1430,8 +1430,8 @@
       "prototyping_desc": "Structures built adjacent to one of your factories construct 15% faster.",
       "quality_control": "+5k gold per factory crossing",
       "quality_control_desc": "Each time your train crosses a factory, both you and the factory owner gain +5k gold.",
-      "tooling": "Tooling",
-      "tooling_desc": "Unlocks efficiency and protection for your industry."
+      "tooling": "Each factory increases troop regeneration speed by 0.1%",
+      "tooling_desc": "Each of your factories increases troop generation speed by 0.1% (stacks per factory)."
     },
     "hbomb": {
       "casing": "Casing",
