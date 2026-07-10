@@ -67,7 +67,10 @@ export class ConstructionExecution implements Execution {
         spawnTile,
         {},
       );
-      const duration = info.constructionDuration ?? 0;
+      let duration = info.constructionDuration ?? 0;
+      if (this.constructionType === UnitType.DefensePost && this.player.hasTech("defense_reinforcements")) {
+        duration = 0;
+      }
       if (duration > 0) {
         this.structure.setUnderConstruction(true);
         this.ticksUntilComplete = duration;
