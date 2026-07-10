@@ -1320,7 +1320,8 @@ export class Config {
   /** Permanent Defenders (defense_militia): bonus max population from defense
    *  posts. Default 0. */
   permanentDefendersPopBonus(player: Player | PlayerView): number {
-    return 0;
+    if (!player.hasTech("defense_militia")) return 0;
+    return player.units(UnitType.DefensePost).filter((u) => !u.isUnderConstruction()).length * 5000;
   }
 
   // --- Port turret (port_turret) ---
