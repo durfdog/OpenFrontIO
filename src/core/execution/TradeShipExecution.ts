@@ -234,8 +234,20 @@ export class TradeShipExecution implements Execution {
         .stats()
         .boatCapturedTrade(this.tradeShip!.owner(), this.origOwner, gold);
     } else {
+      const shipOwner = this.tradeShip!.owner();
+      const recipientGold = BigInt(
+        Math.floor(
+          Number(gold) *
+            this.mg
+              .config()
+              .tradeShipRecipientGoldMultiplier(
+                shipOwner,
+                this._dstPort.owner(),
+              ),
+        ),
+      );
       this.srcPort.owner().addGold(gold, this.srcPort.tile());
-      this._dstPort.owner().addGold(gold, this._dstPort.tile());
+      this._dstPort.owner().addGold(recipientGold, this._dstPort.tile());
       // Record stats
       this.mg
         .stats()

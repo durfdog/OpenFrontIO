@@ -1486,8 +1486,8 @@
     },
     "no_prereq": "No prerequisites",
     "port": {
-      "convoy": "Convoy",
-      "convoy_desc": "Convoy.",
+      "convoy": "Restricted Trade",
+      "convoy_desc": "Other players receive 50% less gold from your trade ships.",
       "development": "Increase trade ship generation speed by 20%",
       "development_desc": "Each of your ports generates trade ships 20% faster, raising the average number of trade ships per port by 20%.",
       "dry_dock": "Dry Dock",

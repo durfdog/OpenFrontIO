@@ -457,11 +457,16 @@ export class TechTreeOverlay extends LitElement {
           >
             ${translateText(node.nameKey)}
           </span>
-          ${isPurchased
-            ? html`<span class="text-green-400 text-xs font-bold shrink-0"
-                >✓</span
-              >`
-            : ""}
+            ${isPurchased
+              ? html`<span class="text-green-400 text-xs font-bold shrink-0"
+                  >✓</span
+                >`
+              : ""}
+        </div>
+        <div
+          class="text-[10px] text-gray-400 leading-tight px-0.5"
+        >
+          ${translateText(node.descKey)}
         </div>
         <div
           class="flex items-center justify-center gap-1 pt-1 border-t border-white/10"

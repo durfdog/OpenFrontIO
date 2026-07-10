@@ -388,6 +388,18 @@ export class Config {
     return player.hasTech("port_navigation") ? 2 : 1;
   }
 
+  // Multiplier applied to gold paid *out* to a recipient (any player other
+  // than the trade ship's owner) from a trade ship, when the owner has the
+  // port_convoy tech. The owner keeps their full share; everyone else gets
+  // 50% less.
+  tradeShipRecipientGoldMultiplier(
+    shipOwner: Player | PlayerView,
+    recipient: Player | PlayerView,
+  ): number {
+    if (shipOwner.id() === recipient.id()) return 1;
+    return shipOwner.hasTech("port_convoy") ? 0.5 : 1;
+  }
+
   unitInfo(type: UnitType): UnitInfo {
     const cached = this.unitInfoCache.get(type);
     if (cached !== undefined) {
