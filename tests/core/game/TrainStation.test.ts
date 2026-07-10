@@ -50,6 +50,7 @@ describe("TrainStation", () => {
     player = {
       addGold: vi.fn(),
       id: 1,
+      hasTech: vi.fn().mockReturnValue(false),
       canTrade: vi.fn().mockReturnValue(true),
       isAlliedWith: vi.fn().mockReturnValue(false),
       isOnSameTeam: vi.fn().mockReturnValue(false),
@@ -68,6 +69,7 @@ describe("TrainStation", () => {
       loadCargo: vi.fn(),
       owner: vi.fn().mockReturnValue(player),
       level: vi.fn(),
+      hasTech: vi.fn().mockReturnValue(false),
       tradeStopsVisited: vi.fn().mockReturnValue(0),
     } as any;
   });
@@ -203,6 +205,81 @@ describe("TrainStation", () => {
     expect(station.tile()).toEqual({ x: 0, y: 0 });
     expect(station.isActive()).toBe(true);
   });
+
+  it("Factory stop grants nothing without factory_quality_control", () => {
+    unit.type.mockReturnValue(UnitType.Factory);
+    const station = new TrainStation(game, unit);
+
+    station.onTrainStop(trainExecution);
+
+    expect(unit.owner().addGold).not.toHaveBeenCalled();
+  });
+
+  it("Factory stop grants +5k gold with factory_quality_control", () => {
+    unit.type.mockReturnValue(UnitType.Factory);
+    const stationOwner = {
+      addGold: vi.fn(),
+      id: 1,
+      canTrade: vi.fn().mockReturnValue(true),
+      isAlliedWith: vi.fn().mockReturnValue(false),
+      isOnSameTeam: vi.fn().mockReturnValue(false),
+    } as any;
+    const trainOwner = {
+      addGold: vi.fn(),
+      id: 2,
+      hasTech: vi.fn().mockReturnValue(true),
+      canTrade: vi.fn().mockReturnValue(true),
+      isAlliedWith: vi.fn().mockReturnValue(false),
+      isOnSameTeam: vi.fn().mockReturnValue(false),
+    } as any;
+    unit.owner.mockReturnValue(stationOwner);
+    trainExecution.owner.mockReturnValue(trainOwner);
+    const station = new TrainStation(game, unit);
+
+    station.onTrainStop(trainExecution);
+
+    // Shared with station owner (different owner) and paid to train owner.
+    expect(stationOwner.addGold).toHaveBeenCalledWith(5_000n, unit.tile());
+    expect(trainOwner.addGold).toHaveBeenCalledWith(5_000n, unit.tile());
+  });
+
+  it("Factory stop only pays train owner when self-owned", () => {
+    unit.type.mockReturnValue(UnitType.Factory);
+    player.hasTech = vi.fn().mockReturnValue(true);
+    const station = new TrainStation(game, unit);
+
+    station.onTrainStop(trainExecution);
+
+    expect(player.addGold).toHaveBeenCalledWith(5_000n, unit.tile());
+    expect(player.addGold).toHaveBeenCalledTimes(1);
+  });
+
+  it("Factory stop grants nothing when train owner lacks factory_quality_control", () => {
+    unit.type.mockReturnValue(UnitType.Factory);
+    const stationOwner = {
+      addGold: vi.fn(),
+      id: 1,
+      canTrade: vi.fn().mockReturnValue(true),
+      isAlliedWith: vi.fn().mockReturnValue(false),
+      isOnSameTeam: vi.fn().mockReturnValue(false),
+    } as any;
+    const trainOwner = {
+      addGold: vi.fn(),
+      id: 2,
+      hasTech: vi.fn().mockReturnValue(false),
+      canTrade: vi.fn().mockReturnValue(true),
+      isAlliedWith: vi.fn().mockReturnValue(false),
+      isOnSameTeam: vi.fn().mockReturnValue(false),
+    } as any;
+    unit.owner.mockReturnValue(stationOwner);
+    trainExecution.owner.mockReturnValue(trainOwner);
+    const station = new TrainStation(game, unit);
+
+    station.onTrainStop(trainExecution);
+
+    expect(stationOwner.addGold).not.toHaveBeenCalled();
+    expect(trainOwner.addGold).not.toHaveBeenCalled();
+  });
 });
 
 describe("Config.trainGold trade stop penalty", () => {
@@ -260,5 +337,41 @@ describe("Config.trainGold trade stop penalty", () => {
     // other base 25k, stop 10: effective = 1 -> 25k - 5k = 20k
     expect(config.trainGold("other", 10, mockPlayer)).toBe(20_000n);
     expect(config.trainGold("team", 10, mockPlayer)).toBe(20_000n);
+  });
+
+  it("factory trade techs add +5k per node, stacking", () => {
+    const withTech = (techs: string[]) => {
+      const p = {
+        isLobbyCreator: () => false,
+        hasTech: (id: string) => techs.includes(id),
+      } as unknown as Player;
+      return (rel: "self" | "team" | "ally" | "other", stops: number) =>
+        config.trainGold(rel, stops, p);
+    };
+    const noTech = {
+      isLobbyCreator: () => false,
+      hasTech: () => false,
+    } as unknown as Player;
+
+    // No tech: self base 10k
+    expect(config.trainGold("self", 0, noTech)).toBe(10_000n);
+
+    // One node: +5k
+    expect(withTech(["factory_development"])("self", 0)).toBe(15_000n);
+
+    // Two nodes: +10k (self 10k + 10k)
+    expect(withTech(["factory_development", "factory_mass_production"])("self", 0)).toBe(
+      20_000n,
+    );
+
+    // All three nodes: +15k applies to every rel tier and stacks
+    const full = withTech([
+      "factory_development",
+      "factory_mass_production",
+      "factory_assembly_line",
+    ]);
+    expect(full("self", 0)).toBe(25_000n);
+    expect(full("other", 0)).toBe(40_000n);
+    expect(full("ally", 0)).toBe(50_000n);
   });
 });

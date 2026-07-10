@@ -12,5 +12,11 @@
 - Do not show a placement range ring for City units in BuildPreviewController. Confidence: 0.70
 
 # exploration
-- Use subagents (code-navigator) to explore unfamiliar codebases before making changes. Confidence: 0.70
+- Use subagents (code-navigator) to explore unfamiliar codebases before making changes. Confidence: 0.80
+
+# game-design
+- Do not invent or recommend gameplay effects/values for tech tree nodes; wait for the user to define the effects and implement exactly what they specify. Confidence: 0.85
+
+# localization
+- Each tech tree node's nameKey (title) should describe its gameplay effect (e.g., "+5k gold per node"), not a thematic name (e.g., "Development"). Confidence: 0.85
 

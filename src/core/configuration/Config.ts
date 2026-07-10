@@ -296,6 +296,17 @@ export class Config {
         baseGold = 10_000;
         break;
     }
+    // Factory tech: trains passing through cities/ports yield +5k gold each,
+    // stacking across factory_development, factory_mass_production, and
+    // factory_assembly_line. Gated on the train owner's tech; both the train
+    // owner and the station owner receive the increased payout.
+    if ("hasTech" in player) {
+      const factoryTradeBonus =
+        (player.hasTech("factory_development") ? 5_000 : 0) +
+        (player.hasTech("factory_mass_production") ? 5_000 : 0) +
+        (player.hasTech("factory_assembly_line") ? 5_000 : 0);
+      baseGold += factoryTradeBonus;
+    }
     const distPenalty = citiesVisited * 5_000;
     const gold = Math.max(5000, baseGold - distPenalty);
     return toInt(gold * this.goldMultiplierFor(player));

@@ -75,7 +75,20 @@ class FactoryStopHandler implements TrainStopHandler {
     mg: Game,
     station: TrainStation,
     trainExecution: TrainExecution,
-  ): void {}
+  ): void {
+    // factory_quality_control: trains crossing a factory grant +5k gold,
+    // paid to both the train owner and the station owner (if different).
+    if (!trainExecution.owner().hasTech("factory_quality_control")) {
+      return;
+    }
+    const gold = 5_000n;
+    const stationOwner = station.unit.owner();
+    const trainOwner = trainExecution.owner();
+    if (trainOwner !== stationOwner) {
+      stationOwner.addGold(gold, station.tile());
+    }
+    trainOwner.addGold(gold, station.tile());
+  }
 }
 
 export function createTrainStopHandlers(
