@@ -1312,7 +1312,8 @@ export class Config {
   machineGunFireSpeedMultiplier(
     defender: Player | PlayerView | TerraNullius,
   ): number {
-    return 1;
+    // Machine Gun Fire: enemy attacks advance 33% slower near defense posts.
+    return defender.hasTech("defense_watchtower") ? 2 / 3 : 1;
   }
 
   /** Permanent Defenders (defense_militia): bonus max population from defense
