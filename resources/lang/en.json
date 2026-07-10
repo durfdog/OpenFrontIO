@@ -1500,8 +1500,8 @@
       "navigation_desc": "Your trade ships are twice as fast",
       "repair_yard": "Fixer",
       "repair_yard_desc": "Repair Yard",
-      "shipbuilding": "Shipyard",
-      "shipbuilding_desc": "Shipbuilding"
+      "shipbuilding": "Lighthouse",
+      "shipbuilding_desc": "You and your allies' warships get +50% attack speed and +50% movement speed within 30 tiles of your ports."
     },
     "sam": {
       "autoloader": "Reload",

@@ -14,6 +14,7 @@ import {
   TerrainType,
   TerraNullius,
   Tick,
+  Unit,
   UnitInfo,
   UnitType,
 } from "../game/Game";
@@ -1164,6 +1165,60 @@ export class Config {
 
   warshipPassiveHealingRange(): number {
     return 150;
+  }
+
+  // --- Lighthouse (port_shipbuilding) ---
+  // Warships owned by you or your allies that are within range of an allied
+  // port get +50% attack speed and +50% movement speed.
+
+  /** Tile radius (Euclidean) within which an allied port grants the buff. */
+  lighthouseRange(): number {
+    return 30;
+  }
+
+  warshipLighthouseAttackSpeedBonus(): number {
+    return 1.5;
+  }
+
+  warshipLighthouseMoveSpeedBonus(): number {
+    return 1.5;
+  }
+
+  /** True when `warship` is within `lighthouseRange` of a port owned by the
+   *  warship's owner or an ally, and the owner has researched the Lighthouse. */
+  lighthouseBuffActive(game: Game, warship: Unit): boolean {
+    const owner = warship.owner();
+    if (!owner.hasTech("port_shipbuilding")) return false;
+    const rangeSq = this.lighthouseRange() ** 2;
+    for (const p of game.allPlayers()) {
+      if (p !== owner && !owner.isFriendly(p)) continue;
+      for (const port of p.units(UnitType.Port)) {
+        if (
+          game.euclideanDistSquared(warship.tile(), port.tile()) <= rangeSq
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /** Effective shell-attack cooldown (ticks) for a warship, reduced by the
+   *  Lighthouse buff when active. */
+  warshipShellAttackRateFor(game: Game, warship: Unit): number {
+    const base = this.warshipShellAttackRate();
+    if (this.lighthouseBuffActive(game, warship)) {
+      return Math.ceil(base / this.warshipLighthouseAttackSpeedBonus());
+    }
+    return base;
+  }
+
+  /** Effective movement-speed multiplier (tiles/tick, may be fractional) for a
+   *  warship, boosted by the Lighthouse buff when active. */
+  warshipMoveSpeedFor(game: Game, warship: Unit): number {
+    return this.lighthouseBuffActive(game, warship)
+      ? this.warshipLighthouseMoveSpeedBonus()
+      : 1;
   }
 
   warshipPortSwitchThreshold(): number {
