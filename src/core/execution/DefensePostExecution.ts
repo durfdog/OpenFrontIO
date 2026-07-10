@@ -1,4 +1,6 @@
-import { Execution, Game, Unit } from "../game/Game";
+import { Execution, Game, Unit, UnitType } from "../game/Game";
+import { TileRef } from "../game/GameMap";
+import { NukeExecution } from "./NukeExecution";
 import { ShellExecution } from "./ShellExecution";
 
 export class DefensePostExecution implements Execution {
@@ -9,6 +11,10 @@ export class DefensePostExecution implements Execution {
   private lastShellAttack = 0;
 
   private alreadySentShell = new Set<Unit>();
+
+  private lastNukeTick = -1;
+
+  private static readonly MAD_COOLDOWN = 600;
 
   constructor(private post: Unit) {}
 
@@ -51,6 +57,39 @@ export class DefensePostExecution implements Execution {
 
     if (this.target !== null && !this.target.isActive()) {
       this.target = null;
+    }
+
+    if (this.post.owner().hasTech("defense_flare")) {
+      const last =
+        this.lastNukeTick < 0
+          ? this.mg.ticks() - DefensePostExecution.MAD_COOLDOWN
+          : this.lastNukeTick;
+      if (this.mg.ticks() - last >= DefensePostExecution.MAD_COOLDOWN) {
+        const owner = this.post.owner();
+        let bestTile: TileRef | null = null;
+        let bestDist = Infinity;
+        for (const p of this.mg.players()) {
+          if (p === owner || p.isFriendly(owner)) continue;
+          for (const t of p.tiles()) {
+            const d = this.mg.euclideanDistSquared(this.post.tile(), t);
+            if (d < bestDist) {
+              bestDist = d;
+              bestTile = t;
+            }
+          }
+        }
+        if (bestTile !== null) {
+          this.mg.addExecution(
+            new NukeExecution(
+              UnitType.AtomBomb,
+              owner,
+              bestTile,
+              this.post.tile(),
+            ),
+          );
+          this.lastNukeTick = this.mg.ticks();
+        }
+      }
     }
 
     // TODO: Reconsider how/if defense posts target ships.
