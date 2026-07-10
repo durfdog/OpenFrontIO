@@ -1304,7 +1304,8 @@ export class Config {
   minefieldAttackerLossMultiplier(
     defender: Player | PlayerView | TerraNullius,
   ): number {
-    return 1;
+    // Minefield: +100% (double) enemy troop loss near the defender's defense posts.
+    return "hasTech" in defender && defender.hasTech("defense_development") ? 2 : 1;
   }
 
   /** Machine Gun Fire (defense_watchtower): attacker advance-speed multiplier
