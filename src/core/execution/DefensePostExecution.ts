@@ -1,6 +1,4 @@
-import { Execution, Game, Unit, UnitType } from "../game/Game";
-import { TileRef } from "../game/GameMap";
-import { NukeExecution } from "./NukeExecution";
+import { Execution, Game, Unit } from "../game/Game";
 import { ShellExecution } from "./ShellExecution";
 
 export class DefensePostExecution implements Execution {
@@ -11,10 +9,6 @@ export class DefensePostExecution implements Execution {
   private lastShellAttack = 0;
 
   private alreadySentShell = new Set<Unit>();
-
-  private lastNukeTick = -1;
-
-  private static readonly MAD_COOLDOWN = 600;
 
   constructor(private post: Unit) {}
 
@@ -59,82 +53,22 @@ export class DefensePostExecution implements Execution {
       this.target = null;
     }
 
-    if (this.post.owner().hasTech("defense_flare")) {
-      const last =
-        this.lastNukeTick < 0
-          ? this.mg.ticks() - DefensePostExecution.MAD_COOLDOWN
-          : this.lastNukeTick;
-      if (this.mg.ticks() - last >= DefensePostExecution.MAD_COOLDOWN) {
-        const owner = this.post.owner();
-        let bestTile: TileRef | null = null;
-        let bestDist = Infinity;
-        for (const p of this.mg.players()) {
-          if (p === owner || p.isFriendly(owner)) continue;
-          for (const t of p.tiles()) {
-            const d = this.mg.euclideanDistSquared(this.post.tile(), t);
-            if (d < bestDist) {
-              bestDist = d;
-              bestTile = t;
-            }
-          }
-        }
-        if (bestTile !== null) {
-          this.mg.addExecution(
-            new NukeExecution(
-              UnitType.AtomBomb,
-              owner,
-              bestTile,
-              this.post.tile(),
-            ),
-          );
-          this.lastNukeTick = this.mg.ticks();
+    // A defense post upgraded with the missile-silo tech (defense_flare) is
+    // transformed into a manual nuke launcher: the player launches nukes
+    // themselves (selecting a target) using the post as the launch source,
+    // exactly like a missile silo. Reload the missile once the cooldown
+    // expires, reusing the same mechanism as SAMs and missile silos.
+    if (this.post.isInCooldown()) {
+      const frontTime = this.post.missileTimerQueue()[0];
+      if (frontTime !== undefined) {
+        const cooldown =
+          this.mg.config().defensePostNukeCooldown() -
+          (this.mg.ticks() - frontTime);
+        if (cooldown <= 0) {
+          this.post.reloadMissile();
         }
       }
     }
-
-    // TODO: Reconsider how/if defense posts target ships.
-    // const ships = this.mg
-    //   .nearbyUnits(
-    //     this.post.tile(),
-    //     this.mg.config().defensePostTargettingRange(),
-    //     [UnitType.TransportShip, UnitType.Warship],
-    //   )
-    //   .filter(
-    //     ({ unit }) =>
-    //       this.post !== null &&
-    //       unit.owner() !== this.post.owner() &&
-    //       !unit.owner().isFriendly(this.post.owner()) &&
-    //       !this.alreadySentShell.has(unit),
-    //   );
-    //
-    // this.target =
-    //   ships.sort((a, b) => {
-    //     const { unit: unitA, distSquared: distA } = a;
-    //     const { unit: unitB, distSquared: distB } = b;
-    //
-    //     // Prioritize TransportShip
-    //     if (
-    //       unitA.type() === UnitType.TransportShip &&
-    //       unitB.type() !== UnitType.TransportShip
-    //     )
-    //       return -1;
-    //     if (
-    //       unitA.type() !== UnitType.TransportShip &&
-    //       unitB.type() === UnitType.TransportShip
-    //     )
-    //       return 1;
-    //
-    //     // If both are the same type, sort by distance (lower `distSquared` means closer)
-    //     return distA - distB;
-    //   })[0]?.unit ?? null;
-    //
-    // if (this.target === null || !this.target.isActive()) {
-    //   this.target = null;
-    //   return;
-    // } else {
-    //   this.shoot();
-    //   return;
-    // }
   }
 
   isActive(): boolean {

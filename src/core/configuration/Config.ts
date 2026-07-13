@@ -1269,6 +1269,13 @@ export class Config {
     return 100;
   }
 
+  /** Cooldown (ticks) between manual missile launches from a defense post that
+   *  has been upgraded with the missile-silo tech (defense_flare). 600 ticks =
+   *  1 minute at 100ms/tick. Reuses the SAM/silo cooldown mechanism. */
+  defensePostNukeCooldown(): number {
+    return 600;
+  }
+
   safeFromPiratesCooldownMax(): number {
     return 20;
   }

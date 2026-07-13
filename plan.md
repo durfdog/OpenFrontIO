@@ -1,31 +1,23 @@
-Change each of the nodes in the defense post tech-tree as described. Make sure to implement in code what the description says the upgrade will do. 
+Below is a list of all bugs found that need to be resolved
 
 1a (root node):
-    title: {"minefield"},
-    description: {"additional +100% enemy troop loss"}
+
 
 2a:
-    title {"dig in"}
-    description {defense posts build instantly when placed}
+
 
 2b: 
-    title {"machine gun fire"}
-    description {"enemy attacks advance 33% slower in range of defense post"}
+
 
 3a: 
-    title {forced labor}
-    description {defense posts are free}
 
 3b: 
-    title {permanent defenders}
-    description {+5k max population per defense post}
+    1. needs to increase population by 50k in code so that it tranlates to 5k in game. So multiply populaiton increase by 10. 
 
 3c:
-    title {snipers}
-    description {+50% defense post radius}
+    the visual did not update with the increased radius. Make sure that the darkening of the ground to show the defense buff and the preview before placing show the increased radius. 
 
 3d:
-    title {MAD}
-    description {each defense post can launch one nuke every 1 minute}
+    I was not able to launch a single nuke with a defense post placed and the upgrade purchased. When i clicked i was previewing sending a nuke the radius preview was white to signify that i could send the nuke, however, the bottom bar with the icons, the nuke icons were greyed out to signify that i could not launch a nuke. Besides the UI, and despite what the white preview would suggest, i was not able to launch a nuke despite having enough gold. 
     
     

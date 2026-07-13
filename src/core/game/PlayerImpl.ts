@@ -1509,7 +1509,10 @@ export class PlayerImpl implements Player {
       const bestPost = findClosestBy(
         this.units(UnitType.DefensePost),
         (post) => mg.manhattanDist(post.tile(), tile),
-        (post) => post.isActive() && !post.isUnderConstruction(),
+        (post) =>
+          post.isActive() &&
+          !post.isUnderConstruction() &&
+          !post.isInCooldown(),
       );
       if (bestPost !== null) {
         return bestPost.tile();
